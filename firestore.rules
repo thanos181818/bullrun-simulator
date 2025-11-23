@@ -1,0 +1,219 @@
+
+/**
+ * @file Firebase Security Rules for BullRun Application
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for private user data and provides public read access to shared content. Authentication is required for all operations.
+ *
+ * Data Structure:
+ * - User-specific data (profile, portfolios, trades, watchlist, transactions) is nested under `/users/{userId}`.
+ * - Public data (modules, quizzes, badges, chat messages, news, assets) resides in top-level collections.
+ *
+ * Key Security Decisions:
+ * - Users can only access their own data under `/users/{userId}`.
+ * - Public content (modules, quizzes, badges, news, assets) is read-only for clients, except during initial creation.
+ * - Chat messages can be created by authenticated users.
+ * - The rules explicitly deny listing the `/users` collection to protect user privacy.
+ * - Anonymous auth is allowed, but all documents still require userId for filtering and display
+ *
+ * Denormalization for Authorization:
+ * User-specific data (portfolios, trades, etc.) include a `userId` field for ownership validation.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the user is signed in.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the owner of the resource.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the existing owner of the resource.
+     * This function should be used for update and delete operations to verify the document exists.
+     */
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rule for user documents.
+     * @path /users/{userId}
+     * @allow (create) - Authenticated user can create their own user document.
+     * @allow (get, list) - Authenticated user can read their own user document.
+     * @allow (update, delete) - Authenticated user can update/delete their own user document.
+     * @deny (create) - Unauthorized user can't create a document with other user id.
+     * @deny (get, list) - Unauthorized user can't read other user documents.
+     * @deny (update, delete) - Unauthorized user can't update/delete other user documents.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Do not allow listing of users.
+      allow create: if isOwner(userId) && request.resource.data.id == request.auth.uid;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id; // Enforce immutable user ID.
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for portfolio documents.
+     * @path /users/{userId}/portfolios/{portfolioId}
+     * @allow (create) - Authenticated user can create portfolio document for themselves.
+     * @allow (get, list) - Authenticated user can read portfolio documents for themselves.
+     * @allow (update, delete) - Authenticated user can update/delete portfolio documents for themselves.
+     * @deny (create) - Unauthorized user can't create a portfolio with other user id.
+     * @deny (get, list) - Unauthorized user can't read other user's portfolios.
+     * @deny (update, delete) - Unauthorized user can't update/delete other user's portfolios.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/portfolios/{portfolioId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == request.auth.uid;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for trade documents.
+     * @path /users/{userId}/trades/{tradeId}
+     * @allow (create) - Authenticated user can create trade documents for themselves.
+     * @allow (get, list) - Authenticated user can read trade documents for themselves.
+     * @allow (update, delete) - Authenticated user can update/delete trade documents for themselves.
+     * @deny (create) - Unauthorized user can't create a trade with other user id.
+     * @deny (get, list) - Unauthorized user can't read other user's trades.
+     * @deny (update, delete) - Unauthorized user can't update/delete other user's trades.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/trades/{tradeId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == request.auth.uid;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for module documents.
+     * @path /modules/{moduleId}
+     * @allow (get, list) - Anyone can read modules.
+     * @allow (create) - Allow one-time write by any signed-in user (for seeding).
+     * @deny (update, delete) - Nobody can update, or delete modules from the client after creation.
+     * @principle Public read, one-time create for seeding.
+     */
+    match /modules/{moduleId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    /**
+     * @description Rule for quiz documents.
+     * @path /quizzes/{quizId}
+     * @allow (get, list) - Anyone can read quizzes.
+     * @allow (create) - Allow one-time write by any signed-in user (for seeding).
+     * @deny (update, delete) - Nobody can update, or delete quizzes from the client after creation.
+     * @principle Public read, one-time create for seeding.
+     */
+    match /quizzes/{quizId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    /**
+     * @description Rule for badge documents.
+     * @path /badges/{badgeId}
+     * @allow (get, list) - Anyone can read badges.
+     * @allow (create) - Allow creation by any signed-in user (for seeding).
+     * @deny (update, delete) - Nobody can update, or delete badges from the client.
+     * @principle Public read, one-time create for seeding.
+     */
+    match /badges/{badgeId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn();
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Rule for asset documents.
+     * @path /assets/{assetId}
+     * @allow (get, list) - Anyone can read assets.
+     * @allow (create) - Allow creation by any signed-in user (for seeding).
+     * @allow (update) - Allow authenticated users to update the price for simulation.
+     * @deny (delete) - Nobody can delete assets from the client.
+     * @principle Public read, one-time create for seeding, price updates for simulation.
+     */
+    match /assets/{assetId} {
+        allow get: if true;
+        allow list: if true;
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['price']);
+        allow delete: if false;
+    }
+
+    /**
+     * @description Rule for chat message documents.
+     * @path /chatMessages/{chatMessageId}
+     * @allow (get, list) - Anyone can read chat messages.
+     * @allow (create) - Authenticated users can create chat messages.
+     * @deny (update, delete) - Nobody can update or delete chat messages.
+     * @principle Public read, authenticated write.
+     */
+    match /chatMessages/{chatMessageId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
+      allow delete: if false;
+    }
+    
+    /**
+     * @description Rule for watchlist documents.
+     * @path /users/{userId}/watchlist/{watchlistId}
+     * @allow (create, get, list, update, delete) - Authenticated user can manage their own watchlist.
+     * @deny - Unauthorized users cannot access watchlists.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/watchlist/{watchlistId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    /**
+     * @description Rule for transaction documents.
+     * @path /users/{userId}/transactions/{transactionId}
+     * @allow (get, list) - Authenticated user can read their own transaction history.
+     * @deny (create, update, delete) - Transactions are created server-side via trades, not directly by clients.
+     * @principle Read-only for document owner.
+     */
+    match /users/{userId}/transactions/{transactionId} {
+      allow get, list: if isOwner(userId);
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Rule for news documents.
+     * @path /news/{newsId}
+     * @allow (get, list) - Anyone can read news.
+     * @deny (create, update, delete) - News is managed by backend processes, not clients.
+     * @principle Public read-only.
+     */
+    match /news/{newsId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+Sr.No.,Description,Input,Expected Output,Actual Output,Success/Failure
+1,"Award first_trade badge","user doc: { badgeIds: [] }; badges: first_trade; trades: 1 trade (totalAmount:100)","updateDoc arrayUnion('first_trade'); toast called",,""
+2,"Do not award duplicate badge","user doc: { badgeIds: ['first_trade'] }; badges: first_trade; trades: >=1","no updateDoc for first_trade; no toast",,""
+3,"Award active_trader badge","user doc: { badgeIds: [] }; badges: active_trader; trades: 10 trades","updateDoc arrayUnion('active_trader'); toast mentions Active Trader",,""
+4,"Award high_roller badge","user doc: { badgeIds: [] }; badges: high_roller; trades include totalAmount:10001","updateDoc arrayUnion('high_roller'); toast mentions High Roller",,""
+5,"Award diversifier badge","user doc: { badgeIds: [] }; badges: diversifier; portfolio holdings: 5 unique assetSymbols","updateDoc arrayUnion('diversifier'); toast mentions Diversifier",,""

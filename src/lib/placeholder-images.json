@@ -1,0 +1,52 @@
+{
+  "placeholderImages": [
+    {
+      "id": "user-avatar-1",
+      "description": "User avatar 1",
+      "imageUrl": "https://images.unsplash.com/photo-1548544149-4835e62ee5b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGVyc29uJTIwZmFjZXxlbnwwfHx8fDE3NjMwMDIyMTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person face"
+    },
+    {
+      "id": "user-avatar-2",
+      "description": "User avatar 2",
+      "imageUrl": "https://images.unsplash.com/photo-1567227278042-f78c52fafae7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBmYWNlfGVufDB8fHx8MTc2Mjk0NjcxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman face"
+    },
+    {
+      "id": "learning-intro",
+      "description": "Introduction to trading thumbnail",
+      "imageUrl": "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmaW5hbmNlJTIwY2hhcnR8ZW58MHx8fHwxNzYyOTc3NjY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "finance chart"
+    },
+    {
+      "id": "learning-technical",
+      "description": "Technical analysis thumbnail",
+      "imageUrl": "https://images.unsplash.com/photo-1638481826540-7710b13f7d53?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzdG9jayUyMGdyYXBofGVufDB8fHx8MTc2Mjk2ODAyMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "stock graph"
+    },
+    {
+      "id": "learning-crypto",
+      "description": "Cryptocurrency basics thumbnail",
+      "imageUrl": "https://images.unsplash.com/photo-1628847351188-df44b49b4839?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjcnlwdG8lMjBjb2lufGVufDB8fHx8MTc2MzAxNDg3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "crypto coin"
+    },
+    {
+      "id": "learning-risk",
+      "description": "Risk management thumbnail",
+      "imageUrl": "https://images.unsplash.com/photo-1660220939045-55d36e8800de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzdHJhdGVneSUyMGJvYXJkfGVufDB8fHx8MTc2Mjk3OTA3NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "strategy board"
+    },
+    {
+      "id": "learning-fundamental",
+      "description": "Fundamental analysis thumbnail",
+      "imageUrl": "https://images.unsplash.com/photo-1554224155-1696413565d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhY2NvdW50aW5nfGVufDB8fHx8MTc2MzExMDQ0OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "accounting"
+    },
+    {
+      "id": "learning-advanced",
+      "description": "Advanced trading strategies thumbnail",
+      "imageUrl": "https://images.unsplash.com/photo-1528495612343-9ca9f4a4de28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjaGVzc3xlbnwwfHx8fDE3NjMxMTA0ODN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chess"
+    }
+  ]
+}

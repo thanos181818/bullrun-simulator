@@ -1,0 +1,629 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user in the BullRun application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "passwordHash": {
+          "type": "string",
+          "description": "Hashed password for authentication."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "URL of the user's avatar image.",
+          "format": "uri"
+        },
+        "walletSimulated": {
+          "type": "number",
+          "description": "User's simulated wallet balance."
+        },
+        "walletReal": {
+          "type": "number",
+          "description": "User's real wallet balance."
+        },
+        "badgeIds": {
+          "type": "array",
+          "description": "References to Badges. (Relationship: User 1:N Badge)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modulesCompleted": {
+          "type": "array",
+          "description": "References to Modules completed by the user.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quizzesCompleted": {
+          "type": "array",
+          "description": "References to Quizzes completed by the user.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "watchlist": {
+          "type": "array",
+          "description": "Array of asset symbols the user is watching.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user was created.",
+          "format": "date-time"
+        },
+        "theme": {
+          "type": "string",
+          "description": "User's preferred theme (light or dark)."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "passwordHash",
+        "createdAt"
+      ]
+    },
+    "Portfolio": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Portfolio",
+      "type": "object",
+      "description": "Represents a user's portfolio, either simulated or real.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Portfolio entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Portfolio)"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Portfolio mode (simulated or real)."
+        },
+        "holdings": {
+          "type": "array",
+          "description": "Array of asset holdings in the portfolio.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mode",
+        "holdings"
+      ]
+    },
+    "Trade": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Trade",
+      "type": "object",
+      "description": "Represents a trading transaction.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Trade entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Trade)"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Trading mode (simulated or real)."
+        },
+        "assetSymbol": {
+          "type": "string",
+          "description": "Symbol of the asset traded (e.g., AAPL, BTC)."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of the asset traded."
+        },
+        "orderType": {
+          "type": "string",
+          "description": "Type of order (buy or sell)."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price at which the asset was traded."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total amount of the transaction."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of the trade execution.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mode",
+        "assetSymbol",
+        "quantity",
+        "orderType",
+        "price",
+        "totalAmount",
+        "timestamp"
+      ]
+    },
+    "Quiz": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Quiz",
+      "type": "object",
+      "description": "Represents a quiz associated with a learning module.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Quiz entity."
+        },
+        "moduleId": {
+          "type": "string",
+          "description": "Reference to Module. (Relationship: Module 1:N Quiz)"
+        },
+        "questions": {
+          "type": "array",
+          "description": "Array of questions in the quiz.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "moduleId",
+        "questions"
+      ]
+    },
+    "Module": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Module",
+      "type": "object",
+      "description": "Represents a learning module.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Module entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the learning module."
+        },
+        "contentHtml": {
+          "type": "string",
+          "description": "HTML content of the learning module."
+        },
+        "orderIndex": {
+          "type": "number",
+          "description": "Index indicating the order of the module in the learning path."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "contentHtml",
+        "orderIndex"
+      ]
+    },
+    "Badge": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Badge",
+      "type": "object",
+      "description": "Represents a badge that users can earn.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Badge entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the badge."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the badge."
+        },
+        "criteria": {
+          "type": "string",
+          "description": "Criteria for earning the badge."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "criteria"
+      ]
+    },
+    "ChatMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ChatMessage",
+      "type": "object",
+      "description": "Represents a chat message.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ChatMessage entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N ChatMessage)"
+        },
+        "message": {
+          "type": "string",
+          "description": "Content of the chat message."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of the message.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "message",
+        "timestamp"
+      ]
+    },
+    "Watchlist": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Watchlist",
+      "type": "object",
+      "description": "Represents a user's watchlist.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Watchlist entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 Watchlist)"
+        },
+        "assetSymbols": {
+          "type": "array",
+          "description": "Array of asset symbols in the watchlist.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "assetSymbols"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a user's transaction history.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Transaction entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Transaction)"
+        },
+        "tradeId": {
+          "type": "string",
+          "description": "Reference to the Trade."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "tradeId"
+      ]
+    },
+    "NewsArticle": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NewsArticle",
+      "type": "object",
+      "description": "Represents a news article.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the NewsArticle entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the news article."
+        },
+        "source": {
+          "type": "string",
+          "description": "Source of the news article (e.g., Reuters, Bloomberg)."
+        },
+        "summary": {
+          "type": "string",
+          "description": "A brief summary of the news article."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL of the full news article.",
+          "format": "uri"
+        },
+        "publishedAt": {
+          "type": "string",
+          "description": "Timestamp when the article was published.",
+          "format": "date-time"
+        },
+        "assetSymbols": {
+          "type": "array",
+          "description": "Array of related asset symbols.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "source",
+        "summary",
+        "url",
+        "publishedAt"
+      ]
+    },
+    "Asset": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Asset",
+      "type": "object",
+      "description": "Represents a financial asset, such as a stock or cryptocurrency.",
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "description": "The unique ticker symbol for the asset (e.g., AAPL, BTC)."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the asset."
+        },
+        "marketCap": {
+          "type": "number",
+          "description": "The total market capitalization of the asset."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the asset.",
+          "enum": ["stock", "crypto"]
+        },
+        "initialPrice": {
+            "type": "number",
+            "description": "The initial base price of the asset for simulation."
+        }
+      },
+      "required": ["symbol", "name", "marketCap", "type", "initialPrice"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user data. Path-based ownership for private user data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/portfolios/{portfolioId}",
+        "definition": {
+          "entityName": "Portfolio",
+          "schema": {
+            "$ref": "#/backend/entities/Portfolio"
+          },
+          "description": "Stores user portfolios. Path-based ownership for private portfolio data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "portfolioId",
+              "description": "The unique ID of the portfolio."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/trades/{tradeId}",
+        "definition": {
+          "entityName": "Trade",
+          "schema": {
+            "$ref": "#/backend/entities/Trade"
+          },
+          "description": "Stores user trades. Path-based ownership for private trade data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "tradeId",
+              "description": "The unique ID of the trade."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/modules/{moduleId}",
+        "definition": {
+          "entityName": "Module",
+          "schema": {
+            "$ref": "#/backend/entities/Module"
+          },
+          "description": "Stores learning modules. Globally accessible.",
+          "params": [
+            {
+              "name": "moduleId",
+              "description": "The unique ID of the module."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/quizzes/{quizId}",
+        "definition": {
+          "entityName": "Quiz",
+          "schema": {
+            "$ref": "#/backend/entities/Quiz"
+          },
+          "description": "Stores quizzes. Globally accessible.",
+          "params": [
+            {
+              "name": "quizId",
+              "description": "The unique ID of the quiz."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/badges/{badgeId}",
+        "definition": {
+          "entityName": "Badge",
+          "schema": {
+            "$ref": "#/backend/entities/Badge"
+          },
+          "description": "Stores badges. Globally accessible.",
+          "params": [
+            {
+              "name": "badgeId",
+              "description": "The unique ID of the badge."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/chatMessages/{chatMessageId}",
+        "definition": {
+          "entityName": "ChatMessage",
+          "schema": {
+            "$ref": "#/backend/entities/ChatMessage"
+          },
+          "description": "Stores chat messages. Includes userId for filtering and display.",
+          "params": [
+            {
+              "name": "chatMessageId",
+              "description": "The unique ID of the chat message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/watchlist/{watchlistId}",
+        "definition": {
+          "entityName": "Watchlist",
+          "schema": {
+            "$ref": "#/backend/entities/Watchlist"
+          },
+          "description": "Stores user's watchlist. Path-based ownership for private watchlist data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "watchlistId",
+              "description": "The unique ID of the watchlist."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores user's transaction history. Path-based ownership for private transaction data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique ID of the transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/news/{newsId}",
+        "definition": {
+          "entityName": "NewsArticle",
+          "schema": {
+            "$ref": "#/backend/entities/NewsArticle"
+          },
+          "description": "Stores news articles. Globally accessible.",
+          "params": [
+            {
+              "name": "newsId",
+              "description": "The unique ID of the news article."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/assets/{assetId}",
+        "definition": {
+          "entityName": "Asset",
+          "schema": {
+            "$ref": "#/backend/entities/Asset"
+          },
+          "description": "Stores financial asset master data. Globally accessible.",
+          "params": [
+            {
+              "name": "assetId",
+              "description": "The unique ID of the asset (same as the symbol)."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure prioritizes authorization independence and clarity for security and debuggability. User data is stored under `/users/{userId}` for private access. User-generated content like portfolios, trades, watchlist, and transactions also reside under the user's path to enforce straightforward ownership-based security rules. Learning modules, badges, news and assets are stored in root-level collections as they are globally accessible. Chat messages are stored in a root-level collection as they are not directly owned by users, but associated via `userId` for filtering and display. The structure avoids hierarchical `get()` calls, ensuring atomic operations and simplified security rules. This design supports secure `list` operations by segregating data based on access needs (public modules/badges vs. private user data). Password recovery is managed outside the database using Firebase Authentication's built-in features, eliminating the need for custom claims."
+  }
+}
