@@ -1,8 +1,5 @@
 'use client';
 
-import { useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { useFirestore } from '@/firebase';
-import { collection, query, orderBy, limit } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -18,17 +15,20 @@ import type { Trade } from '@/lib/types';
 import { format } from 'date-fns';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 export function RecentTrades() {
-  const { user } = useUser();
-  const firestore = useFirestore();
+  const { data: session } = useSession();
 
-  const tradesQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return query(collection(firestore, 'users', user.uid, 'trades'), orderBy('timestamp', 'desc'), limit(5));
-  }, [user, firestore]);
+  const { data: trades, isLoading } = useSWR<Trade[]>(
+    session?.user?.email ? `/api/users/${session.user.email}/trades` : null,
+    fetcher
+  );
 
-  const { data: trades, isLoading } = useCollection<Trade>(tradesQuery);
+  const recentTrades = trades?.slice(0, 5) || [];
 
   const renderSkeleton = () => (
     <div className="space-y-2">
@@ -52,7 +52,7 @@ export function RecentTrades() {
       <CardContent>
         {isLoading ? (
           renderSkeleton()
-        ) : !trades || trades.length === 0 ? (
+        ) : !recentTrades || recentTrades.length === 0 ? (
           <p className="text-muted-foreground text-center py-4">You have no recent trades.</p>
         ) : (
           <Table>
@@ -65,10 +65,10 @@ export function RecentTrades() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {trades.map((trade, index) => (
+              {recentTrades.map((trade, index) => (
                 <TableRow key={index}>
                   <TableCell className="text-xs text-muted-foreground">
-                    {trade.timestamp ? format(trade.timestamp.toDate(), 'P p') : 'N/A'}
+                    {trade.timestamp ? format(new Date(trade.timestamp), 'P p') : 'N/A'}
                   </TableCell>
                   <TableCell className="font-medium">{trade.assetSymbol}</TableCell>
                   <TableCell>

@@ -1,0 +1,65 @@
+{
+  "common": {
+    "welcome": "Bienvenido",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "logout": "Cerrar sesión",
+    "logOut": "Cerrar sesión",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "account": "Cuenta",
+    "language": "Idioma",
+    "theme": "Tema"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "portfolio": "Portafolio",
+    "trade": "Operar",
+    "watchlist": "Lista de seguimiento",
+    "learning": "Aprendizaje",
+    "history": "Historial",
+    "profile": "Perfil"
+  },
+  "dashboard": {
+    "title": "Panel de Mercado",
+    "subtitle": "Visión general en tiempo real de su portafolio y actividad del mercado",
+    "marketOverview": "Resumen del Mercado",
+    "recentTrades": "Operaciones Recientes",
+    "aiInsights": "Perspectivas de IA",
+    "totalValue": "Valor Total",
+    "cashBalance": "Saldo en Efectivo",
+    "totalReturn": "Retorno Total"
+  },
+  "trade": {
+    "buy": "Comprar",
+    "sell": "Vender",
+    "quantity": "Cantidad",
+    "estimatedTotal": "Total Estimado",
+    "placeBuyOrder": "Realizar Orden de Compra",
+    "placeSellOrder": "Realizar Orden de Venta",
+    "executing": "Ejecutando...",
+    "livePrice": "Precio en Vivo",
+    "fractionalShares": "Acciones fraccionarias disponibles para criptomonedas"
+  },
+  "portfolio": {
+    "title": "Portafolio",
+    "subtitle": "Administre sus inversiones y realice un seguimiento del rendimiento en tiempo real",
+    "holdings": "Sus Tenencias",
+    "simulatedMode": "Modo Simulado",
+    "realMode": "Modo Real (Próximamente)",
+    "noHoldings": "Aún no tienes ninguna tenencia",
+    "startTrading": "Comienza a operar para construir tu portafolio"
+  },
+  "learning": {
+    "title": "Centro de Aprendizaje",
+    "subtitle": "Amplíe su conocimiento comercial con nuestros módulos seleccionados",
+    "startLearning": "Comenzar a Aprender",
+    "progress": "Tu Progreso",
+    "backToHub": "Volver al Centro de Aprendizaje"
+  }
+}

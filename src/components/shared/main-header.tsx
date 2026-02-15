@@ -15,53 +15,72 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BullRunLogo } from '@/components/icons';
 import { ThemeToggle } from './theme-toggle';
-import { useAuth, useUser } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { LanguageSelector } from './language-selector';
+import { useSession, signOut } from 'next-auth/react';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 export function MainHeader() {
-  const { user } = useUser();
-  const auth = useAuth();
+  const { data: session } = useSession();
   const router = useRouter();
 
+  const { data: userData } = useSWR(
+    session?.user?.email ? `/api/users/${session.user.email}` : null,
+    fetcher
+  );
+
   const handleLogout = async () => {
-    await signOut(auth);
+    await signOut({ redirect: false });
     router.push('/login');
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border/50 bg-background/80 backdrop-blur-xl px-6">
       <SidebarTrigger className="md:hidden" />
-      <div className="flex items-center gap-2 md:hidden">
-        <BullRunLogo className="h-6 w-6" />
-        <span className="font-bold">BullRun</span>
+      <div className="flex items-center gap-3 md:hidden">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+          <BullRunLogo className="h-4 w-4 text-primary" />
+        </div>
+        <span className="font-semibold tracking-tight">BullRun</span>
       </div>
       <div className="relative ml-auto flex flex-1 items-center justify-end gap-2 md:grow-0">
+        <LanguageSelector />
         <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
-              <Avatar className='h-8 w-8'>
-                <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || ''} />
-                <AvatarFallback>{user?.displayName?.charAt(0) || user?.email?.charAt(0)}</AvatarFallback>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-accent/50"
+            >
+              <Avatar className='h-7 w-7'>
+                <AvatarImage src={userData?.avatar || session?.user?.image || ''} alt={userData?.fullName || session?.user?.name || ''} />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                  {userData?.fullName?.charAt(0) || session?.user?.name?.charAt(0) || session?.user?.email?.charAt(0)}
+                </AvatarFallback>
               </Avatar>
+              <span className="hidden md:inline-block text-sm font-medium">
+                {userData?.fullName?.split(' ')[0] || session?.user?.name?.split(' ')[0]}
+              </span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-56 glass-card">
             <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.displayName}</p>
-                <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+              <div className="flex flex-col space-y-1.5">
+                <p className="text-sm font-medium leading-none">{userData?.fullName || session?.user?.name}</p>
+                <p className="text-xs leading-none text-muted-foreground/70">{session?.user?.email}</p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/profile">
+            <DropdownMenuSeparator className="bg-border/50" />
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link href="/profile" className="flex items-center">
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuSeparator className="bg-border/50" />
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

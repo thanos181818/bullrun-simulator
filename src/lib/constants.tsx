@@ -2,7 +2,6 @@ import type { NavItem } from '@/lib/types';
 import {
   LayoutDashboard,
   Wallet,
-  BookOpen,
   CandlestickChart,
   Star,
   History,
@@ -33,11 +32,6 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'History',
     href: '/history',
     icon: <History size={20} />,
-  },
-  {
-    title: 'Learning',
-    href: '/learning',
-    icon: <BookOpen size={20} />,
   },
 ];
 

@@ -1,8 +1,5 @@
 'use client';
 
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { useFirestore } from '@/firebase';
-import { doc } from 'firebase/firestore';
 import type { Asset } from '@/lib/types';
 import {
   Table,
@@ -20,18 +17,19 @@ import { Button } from '../ui/button';
 import { ArrowUpRight, ArrowDownRight, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAssetPrices } from '@/hooks/use-asset-prices';
+import { useSession } from 'next-auth/react';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 export function Watchlist() {
-  const { user } = useUser();
-  const firestore = useFirestore();
+  const { data: session } = useSession();
   const { assets, isLoading: areAssetsLoading } = useAssetPrices();
 
-  const userDocRef = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return doc(firestore, 'users', user.uid);
-  }, [user, firestore]);
-
-  const { data: userData, isLoading: isUserLoading } = useDoc(userDocRef);
+  const { data: userData, isLoading: isUserLoading } = useSWR(
+    session?.user?.email ? `/api/users/${session.user.email}` : null,
+    fetcher
+  );
 
   const watchlistSymbols = useMemo(() => userData?.watchlist || [], [userData]);
   

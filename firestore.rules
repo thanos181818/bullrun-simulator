@@ -7,11 +7,11 @@
  *
  * Data Structure:
  * - User-specific data (profile, portfolios, trades, watchlist, transactions) is nested under `/users/{userId}`.
- * - Public data (modules, quizzes, badges, chat messages, news, assets) resides in top-level collections.
+ * - Public data (badges, chat messages, news, assets) resides in top-level collections.
  *
  * Key Security Decisions:
  * - Users can only access their own data under `/users/{userId}`.
- * - Public content (modules, quizzes, badges, news, assets) is read-only for clients, except during initial creation.
+ * - Public content (badges, news, assets) is read-only for clients, except during initial creation.
  * - Chat messages can be created by authenticated users.
  * - The rules explicitly deny listing the `/users` collection to protect user privacy.
  * - Anonymous auth is allowed, but all documents still require userId for filtering and display
@@ -100,36 +100,6 @@ service cloud.firestore {
       allow create: if isOwner(userId) && request.resource.data.userId == request.auth.uid;
       allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
       allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Rule for module documents.
-     * @path /modules/{moduleId}
-     * @allow (get, list) - Anyone can read modules.
-     * @allow (create) - Allow one-time write by any signed-in user (for seeding).
-     * @deny (update, delete) - Nobody can update, or delete modules from the client after creation.
-     * @principle Public read, one-time create for seeding.
-     */
-    match /modules/{moduleId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if isSignedIn();
-      allow update, delete: if false;
-    }
-
-    /**
-     * @description Rule for quiz documents.
-     * @path /quizzes/{quizId}
-     * @allow (get, list) - Anyone can read quizzes.
-     * @allow (create) - Allow one-time write by any signed-in user (for seeding).
-     * @deny (update, delete) - Nobody can update, or delete quizzes from the client after creation.
-     * @principle Public read, one-time create for seeding.
-     */
-    match /quizzes/{quizId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if isSignedIn();
-      allow update, delete: if false;
     }
 
     /**

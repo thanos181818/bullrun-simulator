@@ -1,0 +1,74 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "search": "搜索",
+    "filter": "筛选",
+    "sort": "排序",
+    "close": "关闭",
+    "logout": "退出登录",
+    "logOut": "退出登录",
+    "login": "登录",
+    "signup": "注册",
+    "account": "账户",
+    "language": "语言",
+    "theme": "主题"
+  },
+  "nav": {
+    "dashboard": "仪表板",
+    "portfolio": "投资组合",
+    "trade": "交易",
+    "watchlist": "观察列表",
+    "history": "历史记录",
+    "learning": "学习",
+    "profile": "个人资料",
+    "logout": "退出登录"
+  },
+  "dashboard": {
+    "title": "仪表板",
+    "subtitle": "实时查看您的投资组合和市场概况",
+    "totalValue": "总价值",
+    "dailyChange": "每日变化",
+    "marketOverview": "市场概况",
+    "yourWatchlist": "您的观察列表",
+    "recentTrades": "最近交易",
+    "topGainers": "涨幅榜",
+    "topLosers": "跌幅榜"
+  },
+  "trade": {
+    "buy": "买入",
+    "sell": "卖出",
+    "quantity": "数量",
+    "price": "价格",
+    "total": "总计",
+    "orderType": "订单类型",
+    "market": "市价",
+    "limit": "限价",
+    "placeOrder": "下单",
+    "insufficientFunds": "资金不足",
+    "orderSuccess": "订单执行成功",
+    "orderFailed": "订单失败"
+  },
+  "portfolio": {
+    "title": "我的投资组合",
+    "holdings": "持仓",
+    "performance": "业绩",
+    "allocation": "配置",
+    "totalReturn": "总收益",
+    "unrealizedPL": "未实现盈亏",
+    "realizedPL": "已实现盈亏"
+  },
+  "learning": {
+    "title": "学习",
+    "modules": "模块",
+    "progress": "进度",
+    "completed": "已完成",
+    "inProgress": "进行中",
+    "notStarted": "未开始"
+  }
+}

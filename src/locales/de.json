@@ -1,0 +1,74 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "close": "Schließen",
+    "logout": "Abmelden",
+    "logOut": "Abmelden",
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "account": "Konto",
+    "language": "Sprache",
+    "theme": "Design"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "portfolio": "Portfolio",
+    "trade": "Handel",
+    "watchlist": "Beobachtungsliste",
+    "history": "Verlauf",
+    "learning": "Lernen",
+    "profile": "Profil",
+    "logout": "Abmelden"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Echtzeit-Übersicht Ihres Portfolios und Marktes",
+    "totalValue": "Gesamtwert",
+    "dailyChange": "Tägliche Änderung",
+    "marketOverview": "Marktübersicht",
+    "yourWatchlist": "Ihre Beobachtungsliste",
+    "recentTrades": "Letzte Trades",
+    "topGainers": "Top-Gewinner",
+    "topLosers": "Top-Verlierer"
+  },
+  "trade": {
+    "buy": "Kaufen",
+    "sell": "Verkaufen",
+    "quantity": "Menge",
+    "price": "Preis",
+    "total": "Gesamt",
+    "orderType": "Auftragsart",
+    "market": "Markt",
+    "limit": "Limit",
+    "placeOrder": "Auftrag erteilen",
+    "insufficientFunds": "Unzureichende Mittel",
+    "orderSuccess": "Auftrag erfolgreich ausgeführt",
+    "orderFailed": "Auftrag fehlgeschlagen"
+  },
+  "portfolio": {
+    "title": "Mein Portfolio",
+    "holdings": "Bestände",
+    "performance": "Leistung",
+    "allocation": "Allokation",
+    "totalReturn": "Gesamtrendite",
+    "unrealizedPL": "Nicht realisierter G&V",
+    "realizedPL": "Realisierter G&V"
+  },
+  "learning": {
+    "title": "Lernen",
+    "modules": "Module",
+    "progress": "Fortschritt",
+    "completed": "Abgeschlossen",
+    "inProgress": "In Bearbeitung",
+    "notStarted": "Nicht gestartet"
+  }
+}

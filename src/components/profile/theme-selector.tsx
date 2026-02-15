@@ -1,29 +1,44 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import { useUser, useFirestore } from '@/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { useSession } from 'next-auth/react';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sun, Moon, Laptop } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { mutate } from 'swr';
 
 interface ThemeSelectorProps {
     currentTheme?: string;
 }
 
 export function ThemeSelector({ currentTheme = 'system' }: ThemeSelectorProps) {
-  const { setTheme } = useTheme();
-  const { user } = useUser();
-  const firestore = useFirestore();
+  const { setTheme, theme } = useTheme();
+  const { data: session } = useSession();
   const { toast } = useToast();
+  const [selectedTheme, setSelectedTheme] = useState(currentTheme);
+
+  useEffect(() => {
+    setSelectedTheme(currentTheme);
+  }, [currentTheme]);
 
   const handleThemeChange = async (newTheme: string) => {
+    setSelectedTheme(newTheme);
     setTheme(newTheme);
-    if (user && firestore) {
+    if (session?.user?.email) {
       try {
-        const userDocRef = doc(firestore, 'users', user.uid);
-        await updateDoc(userDocRef, { theme: newTheme });
+        const response = await fetch(`/api/users/${session.user.email}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ themePreference: newTheme }),
+        });
+        
+        if (!response.ok) throw new Error('Failed to save theme');
+        
+        // Revalidate user data to update UI
+        mutate(`/api/users/${session.user.email}`);
+        
         toast({
             title: "Theme saved",
             description: `Your theme preference has been updated to ${newTheme}.`
@@ -43,7 +58,7 @@ export function ThemeSelector({ currentTheme = 'system' }: ThemeSelectorProps) {
     <div className='space-y-2'>
       <Label>Theme</Label>
       <RadioGroup
-        defaultValue={currentTheme}
+        value={selectedTheme}
         onValueChange={handleThemeChange}
         className="flex gap-4"
       >

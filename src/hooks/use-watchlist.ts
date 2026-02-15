@@ -1,27 +1,20 @@
 'use client';
 
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { useFirestore } from '@/firebase';
-import { doc, runTransaction, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { useUser } from '@/database/provider';
 import { useToast } from '@/hooks/use-toast';
 import { useMemo } from 'react';
+import useSWR, { mutate } from 'swr';
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useWatchlist() {
   const { user } = useUser();
-  const firestore = useFirestore();
   const { toast } = useToast();
 
-  const userDocRef = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return doc(firestore, 'users', user.uid);
-  }, [user, firestore]);
-
-  const { data: userData, isLoading } = useDoc(userDocRef);
-
-  const watchlist = useMemo(() => userData?.watchlist || [], [userData]);
+  const watchlist = useMemo(() => user?.watchlist || [], [user]);
 
   const toggleWatchlist = async (symbol: string) => {
-    if (!userDocRef || !firestore) {
+    if (!user) {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -31,23 +24,29 @@ export function useWatchlist() {
     }
 
     const isWatched = watchlist.includes(symbol);
+    const newWatchlist = isWatched
+      ? watchlist.filter((s) => s !== symbol)
+      : [...watchlist, symbol];
 
     try {
-      await runTransaction(firestore, async (transaction) => {
-        const userDoc = await transaction.get(userDocRef);
-        if (!userDoc.exists()) throw 'User document does not exist!';
-
-        if (isWatched) {
-          transaction.update(userDocRef, { watchlist: arrayRemove(symbol) });
-        } else {
-          transaction.update(userDocRef, { watchlist: arrayUnion(symbol) });
-        }
+      const response = await fetch(`/api/users/${user.email}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watchlist: newWatchlist }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to update watchlist');
+      }
+
+      // Revalidate user data to update UI immediately
+      mutate(`/api/users/${user.email}`);
+
       toast({
         title: isWatched ? 'Removed from Watchlist' : 'Added to Watchlist',
         description: `${symbol} has been ${isWatched ? 'removed from' : 'added to'} your watchlist.`,
       });
-    } catch (e: any) {
+    } catch (e) {
       console.error('Watchlist update failed:', e);
       toast({
         variant: 'destructive',
@@ -57,5 +56,5 @@ export function useWatchlist() {
     }
   };
   
-  return { watchlist, isLoading, toggleWatchlist };
+  return { watchlist, isLoading: false, toggleWatchlist };
 }

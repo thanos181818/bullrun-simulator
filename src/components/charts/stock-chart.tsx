@@ -21,7 +21,7 @@ interface StockChartProps {
   duration: Duration;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border border-border/50 bg-background/90 p-2 shadow-lg">

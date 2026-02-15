@@ -1,17 +1,22 @@
 
 export type User = {
   id: string;
-  name: string;
-  email?: string | null;
-  avatarUrl?: string;
-  walletSimulated: number;
-  walletReal: number;
+  email: string;
+  password: string;
+  fullName: string;
+  avatar?: string;
+  cashBalance: number;
+  portfolioValue: number;
+  maxPortfolioValue?: number; // tracks highest portfolio value for comeback kid badge
+  totalReturn: number;
+  totalReturnPercent: number;
   badgeIds: string[];
   watchlist: string[];
-  modulesCompleted: string[];
-  quizzesCompleted: string[];
-  createdAt: string;
-  theme: 'light' | 'dark';
+  themePreference: 'light' | 'dark' | 'system';
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export type Holding = {
@@ -36,7 +41,7 @@ export type Trade = {
   orderType: 'buy' | 'sell';
   price: number;
   totalAmount: number;
-  timestamp: any;
+  timestamp: Date;
 };
 
 export type Question = {
@@ -45,41 +50,16 @@ export type Question = {
   options: string[];
   correctIndex: number;
   explanation: string;
-};
-
-export type Quiz = {
-  id: string;
-  title: string;
-  type: 'quiz';
-  moduleId: string;
-  questions: Question[];
-};
-
-export type SubModule = {
-  id: string;
-  title: string;
-  content: string;
-  type: 'content';
-};
-
-export type ModuleItem = SubModule | { id: string; type: 'quiz', title: string };
-
-export type Module = {
-  id:string;
-  title: string;
-  description: string;
-  orderIndex: number;
-  thumbnail: string;
-  curriculum: (SubModule | { id: string; type: 'quiz', title: string })[];
+  difficulty?: 'easy' | 'medium' | 'hard';
 };
 
 export type Badge = {
   id: string;
   title: string;
   description: string;
-  iconName: string;
-  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  criteria: any;
+  icon: string;
+  unlockedIcon: string;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
 };
 
 export type ChatMessage = {

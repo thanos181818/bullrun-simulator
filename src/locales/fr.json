@@ -1,0 +1,74 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "close": "Fermer",
+    "logout": "Déconnexion",
+    "logOut": "Déconnexion",
+    "login": "Se connecter",
+    "signup": "S'inscrire",
+    "account": "Compte",
+    "language": "Langue",
+    "theme": "Thème"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "portfolio": "Portefeuille",
+    "trade": "Trading",
+    "watchlist": "Liste de suivi",
+    "history": "Historique",
+    "learning": "Apprentissage",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "subtitle": "Aperçu en temps réel de votre portefeuille et du marché",
+    "totalValue": "Valeur totale",
+    "dailyChange": "Changement quotidien",
+    "marketOverview": "Aperçu du marché",
+    "yourWatchlist": "Votre liste de suivi",
+    "recentTrades": "Transactions récentes",
+    "topGainers": "Meilleurs gains",
+    "topLosers": "Principales pertes"
+  },
+  "trade": {
+    "buy": "Acheter",
+    "sell": "Vendre",
+    "quantity": "Quantité",
+    "price": "Prix",
+    "total": "Total",
+    "orderType": "Type d'ordre",
+    "market": "Marché",
+    "limit": "Limite",
+    "placeOrder": "Passer commande",
+    "insufficientFunds": "Fonds insuffisants",
+    "orderSuccess": "Commande exécutée avec succès",
+    "orderFailed": "Échec de la commande"
+  },
+  "portfolio": {
+    "title": "Mon Portefeuille",
+    "holdings": "Avoirs",
+    "performance": "Performance",
+    "allocation": "Répartition",
+    "totalReturn": "Rendement total",
+    "unrealizedPL": "P&L non réalisé",
+    "realizedPL": "P&L réalisé"
+  },
+  "learning": {
+    "title": "Apprentissage",
+    "modules": "Modules",
+    "progress": "Progression",
+    "completed": "Terminé",
+    "inProgress": "En cours",
+    "notStarted": "Non commencé"
+  }
+}

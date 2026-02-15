@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -13,55 +14,103 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { sendPasswordResetEmail, updateProfile, updateEmail } from 'firebase/auth';
-import { doc, updateDoc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BadgeList } from '@/components/profile/badge-list';
 import { ThemeSelector } from '@/components/profile/theme-selector';
+import { ViewBalanceDialog } from '@/components/profile/view-balance-dialog';
 import { useTheme } from 'next-themes';
+import { useSession } from 'next-auth/react';
+import useSWR from 'swr';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { checkAndAwardBadges } from '@/lib/badge-service';
 
+const fetcher = (url: string) => fetch(url).then(r => r.json());
+
 export default function ProfilePage() {
-  const { user, isUserLoading } = useUser();
-  const auth = useAuth();
-  const firestore = useFirestore();
+  const { data: session, status } = useSession();
   const { toast } = useToast();
   const { setTheme } = useTheme();
+  const router = useRouter();
 
-  const userDocRef = useMemoFirebase(() => {
-      if (!user || !firestore) return null;
-      return doc(firestore, 'users', user.uid);
-  }, [user, firestore]);
-  
-  const { data: userData, isLoading: isUserDataLoading } = useDoc(userDocRef);
+  const { data: userData, isLoading: isUserDataLoading, mutate } = useSWR(
+    session?.user?.email ? `/api/users/${session.user.email}` : null,
+    fetcher
+  );
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [badgeCheckComplete, setBadgeCheckComplete] = useState(false);
   
   useEffect(() => {
-      if(user) {
-          setName(user.displayName || '');
-          setEmail(user.email || '');
+      if(userData) {
+          setName(userData.fullName || '');
+          setEmail(userData.email || '');
+          setImagePreview(userData.avatar || '');
       }
-      if (userData?.theme) {
-          setTheme(userData.theme);
+      if (userData?.themePreference) {
+          setTheme(userData.themePreference);
       }
-  }, [user, userData, setTheme]);
+  }, [userData, setTheme]);
 
-  // Effect for retroactive badge check
+  // Check and award badges retroactively when profile loads (only once)
   useEffect(() => {
-    if (firestore && user && !isUserDataLoading) {
-      // Run the check once the user data is available.
-      checkAndAwardBadges(firestore, user.uid, toast);
+    if (session?.user?.email && userData && !badgeCheckComplete) {
+      console.log('[PROFILE] Running retroactive badge check...');
+      setBadgeCheckComplete(true);
+      
+      // Run badge check and refresh data if any badges were awarded
+      checkAndAwardBadges(session.user.email, toast)
+        .then((newBadges) => {
+          console.log('[PROFILE] Badge check complete, new badges:', newBadges);
+          if (newBadges.length > 0) {
+            // Refresh user data to show new badges
+            setTimeout(() => {
+              mutate();
+            }, 500);
+          }
+        })
+        .catch(error => {
+          console.error('[PROFILE] Error checking badges:', error);
+        });
     }
-  }, [firestore, user, isUserDataLoading, toast]);
+  }, [session?.user?.email, userData?.email, badgeCheckComplete]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          variant: 'destructive',
+          title: 'File too large',
+          description: 'Image must be less than 5MB',
+        });
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
 
   const handlePasswordReset = async () => {
-    if (!auth || !user?.email) {
+    if (!session?.user?.email) {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -69,56 +118,62 @@ export default function ProfilePage() {
       });
       return;
     }
-    try {
-      await sendPasswordResetEmail(auth, user.email);
-      toast({
-        title: 'Password Reset Email Sent',
-        description: 'Check your inbox for a link to reset your password.',
-      });
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message,
-      });
-    }
+    router.push('/forgot-password');
   };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth.currentUser || !firestore) return;
+    if (!session?.user?.email) return;
 
     setIsSaving(true);
     try {
-      // Update Auth profile
-      await updateProfile(auth.currentUser, { displayName: name });
-      
-      // If email is different, update it
-      if(email !== auth.currentUser.email) {
-        await updateEmail(auth.currentUser, email);
+      let avatarUrl = userData?.avatar;
+
+      // Upload image if one was selected
+      if (imageFile) {
+        setIsUploadingImage(true);
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(imageFile);
+        });
+        avatarUrl = await base64Promise;
       }
 
-      // Update Firestore document
-      const userDocRef = doc(firestore, 'users', auth.currentUser.uid);
-      await updateDoc(userDocRef, { name, email });
+      const response = await fetch(`/api/users/${session.user.email}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          fullName: name,
+          ...(avatarUrl && { avatar: avatarUrl })
+        }),
+      });
+
+      if (!response.ok) throw new Error('Update failed');
+
+      await mutate(); // Revalidate user data
+      setImageFile(null);
 
       toast({
         title: 'Profile Updated',
         description: 'Your profile details have been successfully updated.',
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Update Failed',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Failed to update profile',
       });
     } finally {
       setIsSaving(false);
+      setIsUploadingImage(false);
     }
   };
 
 
-  if (isUserLoading || !user || isUserDataLoading) {
+  const isLoading = status === 'loading' || isUserDataLoading;
+
+  if (isLoading || !session?.user) {
     return (
        <div className="space-y-6">
             <h1 className="text-2xl font-semibold">Profile</h1>
@@ -165,7 +220,10 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Profile</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Profile</h1>
+        <ViewBalanceDialog userEmail={session?.user?.email || ''} />
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Your Details</CardTitle>
@@ -177,11 +235,31 @@ export default function ProfilePage() {
           <form onSubmit={handleProfileUpdate} className="space-y-4">
             <div className="flex items-center space-x-4">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={user.photoURL || ''} />
+                <AvatarImage src={imagePreview || userData?.avatar || session?.user?.image || ''} />
                 <AvatarFallback>
-                  {user.displayName?.charAt(0) || user.email?.charAt(0)}
+                  {userData?.fullName?.charAt(0) || session?.user?.name?.charAt(0) || session?.user?.email?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
+              <div className="flex-1">
+                <Label htmlFor="avatar" className="cursor-pointer">
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <span>Change Avatar</span>
+                  </Button>
+                </Label>
+                <Input
+                  id="avatar"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                  disabled={isSaving || isUploadingImage}
+                />
+                {imageFile && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {imageFile.name}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
@@ -198,8 +276,8 @@ export default function ProfilePage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isSaving}
+                disabled
+                readOnly
               />
             </div>
             <Button type="submit" disabled={isSaving}>
@@ -217,7 +295,7 @@ export default function ProfilePage() {
           <CardDescription>Customize your app experience.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ThemeSelector currentTheme={userData?.theme} />
+          <ThemeSelector currentTheme={userData?.themePreference} />
         </CardContent>
       </Card>
       

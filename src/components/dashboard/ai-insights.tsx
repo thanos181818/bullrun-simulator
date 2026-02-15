@@ -3,35 +3,31 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wand2, Loader2 } from 'lucide-react';
-import { useAuth } from '@/firebase';
+import { Wand2, Loader2, CheckCircle2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 export function AiInsights() {
   const [insight, setInsight] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const auth = useAuth();
+  const { data: session } = useSession();
 
   const handleGetInsights = async () => {
     setLoading(true);
     setError(null);
     setInsight('');
 
-    if (!auth.currentUser) {
+    if (!session?.user) {
         setError('You must be logged in to get insights.');
         setLoading(false);
         return;
     }
-    
-    // Add Authorization header for server-side authentication
-    const idToken = await auth.currentUser.getIdToken();
-    const headers: HeadersInit = { 'Authorization': `Bearer ${idToken}` };
 
     // The action now needs to be called via fetch to the new API route
     try {
         const response = await fetch('/api/ai-insights-action', {
             method: 'POST',
-            headers: headers
+            headers: { 'Content-Type': 'application/json' }
         });
 
         if (!response.ok) {
@@ -49,9 +45,9 @@ export function AiInsights() {
             setInsight(result.insights);
         }
 
-    } catch (e: any) {
+    } catch (e) {
         setLoading(false);
-        setError(e.message || 'An error occurred while fetching insights.');
+        setError(e instanceof Error ? e.message : 'An error occurred while fetching insights.');
     }
   };
 
@@ -90,8 +86,23 @@ export function AiInsights() {
           )}
           {error && <p className="text-sm text-destructive">{error}</p>}
           {insight && (
-            <div className="rounded-md bg-secondary/50 p-4 text-sm">
-              <p className="leading-relaxed">{insight}</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                <CheckCircle2 className="h-4 w-4" />
+                <span className="font-medium">Insights Generated Successfully</span>
+              </div>
+              <div className="rounded-md bg-secondary/50 border border-green-200 dark:border-green-800 p-4 text-sm">
+                <ul className="list-disc list-inside space-y-1.5">
+                  {insight
+                    .split('\n')
+                    .filter((line: string) => line.trim().length > 0)
+                    .map((line: string, idx: number) => (
+                      <li key={idx} className="text-xs leading-relaxed ml-1">
+                        {line.trim().replace(/^[-•]\s*/, '')}
+                      </li>
+                    ))}
+                </ul>
+              </div>
             </div>
           )}
         </div>

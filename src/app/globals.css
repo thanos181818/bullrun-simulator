@@ -23,7 +23,7 @@
     --border: 0 0% 85%;
     --input: 0 0% 85%;
     --ring: 236 65% 30%;
-    --radius: 0rem;
+    --radius: 0.5rem;
     --chart-1: 236 65% 50%;
     --chart-2: 180 100% 35%;
     --chart-3: 210 40% 56.1%;
@@ -40,39 +40,39 @@
   }
 
   .dark {
-    --background: 222 47% 11%; /* Dark blue-gray */
-    --foreground: 210 40% 98%;
-    --card: 222 47% 13%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 236 65% 60%; /* Brighter Blue for contrast */
-    --primary-foreground: 0 0% 98%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 180 100% 35%; /* Brighter Teal */
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 240 10% 3.9%; /* Near-black background */
+    --foreground: 0 0% 88%; /* Muted foreground, not pure white */
+    --card: 240 6% 8%; /* Dark translucent cards */
+    --card-foreground: 0 0% 88%;
+    --popover: 240 8% 6%;
+    --popover-foreground: 0 0% 88%;
+    --primary: 217 91% 60%; /* Muted blue accent */
+    --primary-foreground: 0 0% 95%;
+    --secondary: 240 4% 12%;
+    --secondary-foreground: 0 0% 75%;
+    --muted: 240 4% 12%;
+    --muted-foreground: 0 0% 55%; /* Muted secondary text */
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 236 65% 60%;
-    --radius: 0rem;
-    --chart-1: 236 65% 60%;
-    --chart-2: 180 100% 45%;
-    --chart-3: 210 40% 56.1%;
-    --chart-4: 24 9.8% 70%;
-    --chart-5: 343.7 91.2% 60%;
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 236 65% 60%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 20%;
-    --sidebar-ring: 236 65% 60%;
+    --border: 240 5% 15%; /* Subtle dark borders */
+    --input: 240 5% 12%;
+    --ring: 217 91% 60%;
+    --radius: 1rem; /* 16px rounded corners */
+    --chart-1: 217 91% 60%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 197 37% 48%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --sidebar-background: 240 8% 6%; /* Darker sidebar */
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 95%;
+    --sidebar-accent: 240 4% 10%;
+    --sidebar-accent-foreground: 0 0% 85%;
+    --sidebar-border: 240 5% 12%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -82,7 +82,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .prose {
@@ -128,4 +133,107 @@
   .dark .prose strong {
     @apply text-foreground;
   }
+}
+
+@layer utilities {
+  /* Glassmorphism card style */
+  .glass-card {
+    @apply bg-card/40 backdrop-blur-xl border border-border/50 shadow-lg;
+  }
+  
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:bg-card/60 hover:border-border/80 hover:shadow-xl;
+  }
+  
+  /* Premium shadow utilities */
+  .shadow-glass {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+  
+  .shadow-glass-lg {
+    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Soft glow for interactive elements */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.15);
+  }
+  
+  .glow-success {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
+  }
+  
+  .glow-danger {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+  }
+  
+  /* Number display enhancements */
+  .number-display {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  
+  /* Smooth value transitions */
+  .value-transition {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Shimmer effect for loading */
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+  
+  .shimmer {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.03) 50%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+  }
+  
+  /* Pulse animation for highlights */
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Scale on hover */
+  .hover-lift {
+    transition: transform 0.2s ease-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Stagger animation */
+  .stagger-fade-in {
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
 }

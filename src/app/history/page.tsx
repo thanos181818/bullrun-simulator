@@ -1,8 +1,6 @@
 'use client';
 
-import { useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { useFirestore } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { useSession } from 'next-auth/react';
 import {
   Table,
   TableBody,
@@ -16,17 +14,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Trade } from '@/lib/types';
 import { format } from 'date-fns';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 export default function HistoryPage() {
-  const { user } = useUser();
-  const firestore = useFirestore();
-
-  const tradesQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return query(collection(firestore, 'users', user.uid, 'trades'), orderBy('timestamp', 'desc'));
-  }, [user, firestore]);
-
-  const { data: trades, isLoading } = useCollection<Trade>(tradesQuery);
+  const { data: session } = useSession();
+  const { data: trades, isLoading } = useSWR<Trade[]>(
+    session?.user?.email ? `/api/users/${session.user.email}/trades` : null,
+    fetcher
+  );
 
   const renderSkeleton = () => (
     <div className="space-y-2">
@@ -65,7 +62,7 @@ export default function HistoryPage() {
                 {trades.map((trade, index) => (
                   <TableRow key={index}>
                     <TableCell>
-                      {trade.timestamp ? format(trade.timestamp.toDate(), 'PPpp') : 'N/A'}
+                      {trade.timestamp ? format(new Date(trade.timestamp), 'PPpp') : 'N/A'}
                     </TableCell>
                     <TableCell className="font-medium">{trade.assetSymbol}</TableCell>
                     <TableCell>

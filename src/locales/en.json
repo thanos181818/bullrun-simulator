@@ -1,0 +1,65 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "logOut": "Log Out",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "account": "Account",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "portfolio": "Portfolio",
+    "trade": "Trade",
+    "watchlist": "Watchlist",
+    "learning": "Learning",
+    "history": "History",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "title": "Market Dashboard",
+    "subtitle": "Real-time overview of your portfolio and market activity",
+    "marketOverview": "Market Overview",
+    "recentTrades": "Recent Trades",
+    "aiInsights": "AI Insights",
+    "totalValue": "Total Value",
+    "cashBalance": "Cash Balance",
+    "totalReturn": "Total Return"
+  },
+  "trade": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "quantity": "Quantity",
+    "estimatedTotal": "Estimated Total",
+    "placeBuyOrder": "Place Buy Order",
+    "placeSellOrder": "Place Sell Order",
+    "executing": "Executing...",
+    "livePrice": "Live Price",
+    "fractionalShares": "Fractional shares available for crypto"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "subtitle": "Manage your investments and track performance in real-time",
+    "holdings": "Your Holdings",
+    "simulatedMode": "Simulated Mode",
+    "realMode": "Real Mode (Soon)",
+    "noHoldings": "You don't have any holdings yet",
+    "startTrading": "Start trading to build your portfolio"
+  },
+  "learning": {
+    "title": "Learning Hub",
+    "subtitle": "Expand your trading knowledge with our curated modules",
+    "startLearning": "Start Learning",
+    "progress": "Your Progress",
+    "backToHub": "Back to Learning Hub"
+  }
+}

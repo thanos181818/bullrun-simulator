@@ -16,24 +16,48 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import type { Asset } from '@/lib/types';
 import { useWatchlist } from '@/hooks/use-watchlist';
-import { Star } from 'lucide-react';
+import { Star, CheckCircle2, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAssetPrices } from '@/hooks/use-asset-prices';
+import { WatchlistComparison } from '@/components/dashboard/watchlist-comparison';
 
 
 export default function WatchlistPage() {
   const { watchlist, isLoading: isWatchlistLoading, toggleWatchlist } = useWatchlist();
   const { assets: allAssets, isLoading: areAssetsLoading } = useAssetPrices();
   const router = useRouter();
+  const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
 
   const watchedAssets = useMemo(() => {
     return allAssets.filter(asset => watchlist.includes(asset.symbol));
   }, [allAssets, watchlist]);
 
   const handleRowClick = (symbol: string) => {
-    router.push(`/trade/${symbol}`);
+    if (selectedAssets.length === 0) {
+      router.push(`/trade/${symbol}`);
+    }
   };
 
+  const toggleAssetSelection = (symbol: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedAssets.includes(symbol)) {
+      setSelectedAssets(selectedAssets.filter(s => s !== symbol));
+    } else if (selectedAssets.length < 3) {
+      setSelectedAssets([...selectedAssets, symbol]);
+    }
+  };
+
+  const handleCompare = () => {
+    if (selectedAssets.length >= 2) {
+      setShowComparison(true);
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedAssets([]);
+    setShowComparison(false);
+  };
 
   const renderSkeleton = () => (
     <div className="space-y-2">
@@ -45,7 +69,39 @@ export default function WatchlistPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">My Watchlist</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">My Watchlist</h1>
+        {selectedAssets.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {selectedAssets.length} selected (min 2, max 3)
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleClearSelection}
+            >
+              Clear
+            </Button>
+            {selectedAssets.length >= 2 && (
+              <Button 
+                size="sm"
+                onClick={handleCompare}
+              >
+                Compare {selectedAssets.length} Assets
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+      
+      {showComparison && selectedAssets.length >= 2 && (
+        <WatchlistComparison 
+          watchedAssets={watchedAssets.filter(asset => selectedAssets.includes(asset.symbol))}
+          onClose={handleClearSelection}
+        />
+      )}
+      
       <Card>
         <CardHeader>
           <CardTitle>Watched Assets</CardTitle>
@@ -60,7 +116,8 @@ export default function WatchlistPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead></TableHead>
+                  <TableHead className="w-12"></TableHead>
+                  <TableHead className="w-12"></TableHead>
                   <TableHead>Symbol</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
@@ -74,13 +131,37 @@ export default function WatchlistPage() {
                   const price = asset.price || 0;
                   const changePercent = asset.changePercent || 0;
                   const marketCap = asset.marketCap || 0;
+                  const isSelected = selectedAssets.includes(asset.symbol);
 
                   return (
-                    <TableRow key={asset.symbol} onClick={() => handleRowClick(asset.symbol)} className="cursor-pointer">
+                    <TableRow 
+                      key={asset.symbol} 
+                      onClick={() => handleRowClick(asset.symbol)} 
+                      className={cn(
+                        "cursor-pointer transition-colors",
+                        isSelected && "bg-primary/5 border-l-2 border-l-primary"
+                      )}
+                    >
+                      <TableCell onClick={(e) => toggleAssetSelection(asset.symbol, e)}>
+                        <Button
+                          variant={isSelected ? "default" : "outline"}
+                          size="icon"
+                          className="h-8 w-8"
+                          title={isSelected ? 'Deselect for comparison' : 'Select for comparison'}
+                          disabled={!isSelected && selectedAssets.length >= 3}
+                        >
+                          {isSelected ? (
+                            <CheckCircle2 className="h-4 w-4" />
+                          ) : (
+                            <Circle className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
                       <TableCell onClick={(e) => { e.stopPropagation(); toggleWatchlist(asset.symbol); }}>
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-8 w-8"
                           title={'Remove from watchlist'}
                         >
                           <Star className={cn("h-4 w-4", "fill-yellow-400 text-yellow-500")} />

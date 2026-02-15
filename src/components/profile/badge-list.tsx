@@ -28,14 +28,14 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { useCollection, useMemoFirebase } from '@/firebase';
-import { useFirestore } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '../ui/skeleton';
+import useSWR from 'swr';
 
 interface BadgeListProps {
   userBadges: string[];
 }
+
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 const iconMap: { [key: string]: React.FC<LucideProps> } = {
   PocketKnife,
@@ -51,14 +51,7 @@ const iconMap: { [key: string]: React.FC<LucideProps> } = {
 };
 
 export function BadgeList({ userBadges }: BadgeListProps) {
-  const firestore = useFirestore();
-
-  const badgesQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'badges'));
-  }, [firestore]);
-
-  const { data: badges, isLoading } = useCollection<Omit<Badge, 'icon'>>(badgesQuery);
+  const { data: badges, isLoading } = useSWR<Badge[]>('/api/badges', fetcher);
 
   if (isLoading) {
     return (
@@ -92,7 +85,7 @@ export function BadgeList({ userBadges }: BadgeListProps) {
             <div className="flex flex-wrap gap-4">
               {badges.map((badge) => {
                 const hasBadge = userBadges.includes(badge.id);
-                const Icon = iconMap[badge.iconName] || PocketKnife;
+                const Icon = iconMap[badge.icon] || PocketKnife;
                 return (
                   <Tooltip key={badge.id}>
                     <TooltipTrigger asChild>

@@ -7,24 +7,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, DocumentData } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
 import type { Holding } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 import { useAssetPrices } from '@/hooks/use-asset-prices';
+import { useSession } from 'next-auth/react';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 export function HoldingsTable() {
-  const { user } = useUser();
-  const firestore = useFirestore();
+  const { data: session } = useSession();
   const { assets, isLoading: areAssetsLoading } = useAssetPrices();
 
-  const portfolioRef = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return doc(firestore, 'users', user.uid, 'portfolios', 'simulated');
-  }, [user, firestore]);
-
-  const { data: portfolio, isLoading: isPortfolioLoading } = useDoc(portfolioRef);
+  const { data: portfolio, isLoading: isPortfolioLoading } = useSWR(
+    session?.user?.email ? `/api/users/${session.user.email}/portfolio?mode=simulated` : null,
+    fetcher
+  );
 
   if (isPortfolioLoading || areAssetsLoading) {
     return (
@@ -40,7 +38,7 @@ export function HoldingsTable() {
 
   const holdings = portfolio?.holdings || [];
 
-  const enrichedHoldings = holdings.map((holding: any) => {
+  const enrichedHoldings = holdings.map((holding: { assetSymbol: string; quantity: number; avgBuyPrice: number }) => {
     const asset = assets.find(a => a.symbol === holding.assetSymbol);
     if (!asset || !asset.price) return null;
 
@@ -58,37 +56,62 @@ export function HoldingsTable() {
   }).filter(Boolean);
 
   if (enrichedHoldings.length === 0) {
-    return <p className="text-muted-foreground">You have no holdings in this portfolio.</p>
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="rounded-full bg-muted/30 p-6 mb-4">
+          <svg className="h-12 w-12 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          </svg>
+        </div>
+        <p className="text-lg font-semibold text-muted-foreground">No holdings yet</p>
+        <p className="text-sm text-muted-foreground/60 mt-1">Start trading to build your portfolio</p>
+      </div>
+    );
   }
 
   return (
     <Table>
       <TableHeader>
-        <TableRow>
-          <TableHead>Symbol</TableHead>
-          <TableHead>Quantity</TableHead>
-          <TableHead className="text-right">Avg. Buy Price</TableHead>
-          <TableHead className="text-right">Current Value</TableHead>
-          <TableHead className="text-right">Total P/L (%)</TableHead>
+        <TableRow className="border-border/50">
+          <TableHead className="font-semibold">Symbol</TableHead>
+          <TableHead className="font-semibold">Quantity</TableHead>
+          <TableHead className="text-right font-semibold">Avg. Buy Price</TableHead>
+          <TableHead className="text-right font-semibold">Current Value</TableHead>
+          <TableHead className="text-right font-semibold">Total P/L</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {enrichedHoldings.map((holding: any) => (
-          <TableRow key={holding.assetSymbol}>
-            <TableCell className="font-medium">{holding.assetSymbol}</TableCell>
-            <TableCell>{holding.quantity.toLocaleString()}</TableCell>
-            <TableCell className="text-right font-mono">
-              ${holding.avgBuyPrice.toFixed(2)}
+        {enrichedHoldings.map((holding, index) => (
+          <TableRow 
+            key={holding.assetSymbol}
+            className="border-border/30 transition-all duration-200 hover:bg-accent/20 group cursor-pointer"
+          >
+            <TableCell className="font-bold text-base">{holding.assetSymbol}</TableCell>
+            <TableCell className="number-display font-semibold">{holding.quantity.toLocaleString()}</TableCell>
+            <TableCell className="text-right number-display font-medium">
+              <span className="text-xs text-muted-foreground/60">$</span>
+              {holding.avgBuyPrice.toFixed(2)}
             </TableCell>
-            <TableCell className="text-right font-mono">
-              ${holding.currentValue.toFixed(2)}
+            <TableCell className="text-right number-display font-bold text-base">
+              <span className="text-xs text-muted-foreground/60">$</span>
+              {holding.currentValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </TableCell>
-            <TableCell
-              className={`text-right font-mono ${
-                holding.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
-              } dark:${holding.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}
-            >
-              {holding.totalPL.toFixed(2)} ({holding.changePercent.toFixed(2)}%)
+            <TableCell className="text-right">
+              <div className="flex flex-col items-end gap-1">
+                <div className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-bold ${
+                  holding.changePercent >= 0 
+                    ? 'bg-green-500/10 text-green-500' 
+                    : 'bg-red-500/10 text-red-500'
+                }`}>
+                  <span className="text-base">{holding.changePercent >= 0 ? '\u2197' : '\u2198'}</span>
+                  <span className="number-display">
+                    {holding.totalPL >= 0 ? '+' : ''}${Math.abs(holding.totalPL).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground/60 font-medium">
+                  {holding.changePercent >= 0 ? '+' : ''}{holding.changePercent.toFixed(2)}%
+                </span>
+              </div>
             </TableCell>
           </TableRow>
         ))}

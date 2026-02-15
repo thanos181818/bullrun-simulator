@@ -76,8 +76,19 @@ const config = {
       },
       borderRadius: {
         lg: 'var(--radius)',
-        md: 'calc(var(--radius))',
-        sm: 'calc(var(--radius))',
+        md: 'calc(var(--radius) * 0.75)',
+        sm: 'calc(var(--radius) * 0.5)',
+        xl: 'calc(var(--radius) * 1.25)', /* 20px */
+        '2xl': 'calc(var(--radius) * 1.5)', /* 24px */
+      },
+      backdropBlur: {
+        xs: '2px',
+        sm: '4px',
+        md: '8px',
+        lg: '12px',
+        xl: '16px',
+        '2xl': '24px',
+        '3xl': '32px',
       },
       keyframes: {
         'accordion-down': {
@@ -107,7 +118,27 @@ const config = {
             '0%': { transform: 'translateX(0px)' },
             '50%': { transform: 'translateX(15px)' },
             '100%': { transform: 'translateX(0px)' },
-        }
+        },
+        'slide-up': {
+          '0%': { transform: 'translateY(100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'slide-down': {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'scale-in': {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'bounce-subtle': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
+        },
+        'spin-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -116,6 +147,11 @@ const config = {
         'float-2': 'float-2 7s ease-in-out infinite',
         'float-3': 'float-3 9s ease-in-out infinite',
         'float-4': 'float-4 6s ease-in-out infinite',
+        'slide-up': 'slide-up 0.3s ease-out',
+        'slide-down': 'slide-down 0.3s ease-out',
+        'scale-in': 'scale-in 0.2s ease-out',
+        'bounce-subtle': 'bounce-subtle 2s ease-in-out infinite',
+        'spin-slow': 'spin-slow 3s linear infinite',
       },
     },
   },
