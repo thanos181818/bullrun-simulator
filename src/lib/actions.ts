@@ -109,7 +109,7 @@ async function getMarketData(): Promise<Asset[]> {
 }
 
 // This is a server-action that can be called from client components.
-export async function getAIInsightsAction(): Promise<{ insights: string } | { error: string }> {
+export async function getAIInsightsAction(): Promise<{ insights: any[] } | { error: string }> {
   try {
     const user = await getAuthenticatedUser();
     if (!user?.email) {
@@ -141,22 +141,17 @@ export async function getAIInsightsAction(): Promise<{ insights: string } | { er
             }
           )
           .join('\n')
-      : "User has no holdings in their simulated portfolio.";
+      : 'User has no current holdings.';
 
     const input: TradingInsightsInput = {
       marketData: marketDataString,
       userPortfolio: userPortfolioString,
     };
-    
-    // Calling the Genkit flow
+
     const result = await getTradingInsights(input);
-    return result;
+    return { insights: result.insights };
   } catch (error) {
-    console.error('Error getting AI trading insights:', error);
-    // Avoid leaking internal error details to the client
-    if (error instanceof Error && (error.message.includes('permission-denied') || error.message.includes('unauthenticated'))) {
-      return { error: 'Authentication failed. Please log in again.' };
-    }
-    return { error: 'Failed to generate AI insights. Please try again later.' };
+    console.error('Error in getAIInsightsAction:', error);
+    return { error: 'Failed to generate insights. Please try again later.' };
   }
 }

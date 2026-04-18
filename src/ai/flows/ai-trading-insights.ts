@@ -20,7 +20,11 @@ const TradingInsightsInputSchema = z.object({
 export type TradingInsightsInput = z.infer<typeof TradingInsightsInputSchema>;
 
 const TradingInsightsOutputSchema = z.object({
-  insights: z.string().describe('AI-powered insights on market trends and personalized trading suggestions.'),
+  insights: z.array(z.object({
+    type: z.enum(['opportunity', 'risk', 'diversification', 'performance']),
+    text: z.string(),
+    icon: z.string().describe('Lucide icon name suitable for the insight.'),
+  })).describe('Structured AI-powered trading insights.'),
 });
 export type TradingInsightsOutput = z.infer<typeof TradingInsightsOutputSchema>;
 
@@ -32,7 +36,7 @@ const tradingInsightsPrompt = ai.definePrompt({
   name: 'tradingInsightsPrompt',
   input: {schema: TradingInsightsInputSchema},
   output: {schema: TradingInsightsOutputSchema},
-  prompt: `You are a Senior Quantitative Trading Analyst. Your task is to provide deep, data-driven trading insights based on current market data and a user's specific portfolio.
+  prompt: `You are a Senior Quantitative Trading Analyst. Your task is to provide exactly 4-6 deep, data-driven trading insights based on current market data and a user's specific portfolio.
 
   ### Context
   Market Data:
@@ -45,14 +49,18 @@ const tradingInsightsPrompt = ai.definePrompt({
   1. **Identify Performance Drivers**: Analyze which assets in the portfolio are driving gains or losses.
   2. **Spot Market Opportunities**: Identify high-momentum assets or potential "buy the dip" opportunities from the market data.
   3. **Risk Management**: Flag over-concentration or high-risk positions (especially in volatile assets like Crypto).
-  4. **Actionable Advice**: Provide specific, quantitative suggestions (e.g., "Consider trimming your position in X to lock in 10% gains" or "Asset Y is down 5% today despite strong fundamentals, potentially a entry point").
+  4. **Actionable Advice**: Provide specific, quantitative suggestions.
+
+  ### Output Format
+  Return an array of structured insights. Each insight must have:
+  - **type**: One of 'opportunity', 'risk', 'diversification', 'performance'.
+  - **text**: A concise, impactful sentence (max 20 words).
+  - **icon**: A Lucide icon name (e.g., 'TrendingUp', 'AlertTriangle', 'PieChart', 'Zap', 'Target', 'ArrowDownRight').
 
   ### Guidelines
-  - Be direct, professional, and slightly analytical.
-  - Avoid generic advice like "diversify your portfolio" unless it's backed by a specific observation (e.g., "You are 90% invested in Tech").
+  - Be direct and professional.
   - Use the specific price points and percentages provided in the data.
-  - Format the response as a single, well-structured paragraph.
-  - Ensure the advice is tailored to a simulated trading environment where users are learning.
+  - Ensure the advice is tailored to a simulated trading environment.
   `,
 });
 
