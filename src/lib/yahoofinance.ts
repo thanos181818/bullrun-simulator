@@ -61,7 +61,8 @@ interface YahooFinanceHistoryPoint {
 export async function fetchHistoricalData(
   symbol: string,
   fromDate: number,
-  toDate: number
+  toDate: number,
+  interval: '1m' | '5m' | '15m' | '30m' | '1h' | '1d' | '1wk' | '1mo' = '1d'
 ): Promise<YahooFinanceHistoryPoint[]> {
   const yahooSymbol = YAHOO_SYMBOL_MAP[symbol];
   
@@ -72,24 +73,25 @@ export async function fetchHistoricalData(
   try {
     // Dynamic import to avoid issues at build time
     const YahooFinance = await import('yahoo-finance2').then(m => m.default);
-    const yf = new YahooFinance();
+    const yf = new YahooFinance({ suppressNotices: ['ripHistorical', 'yahooSurvey'] });
 
-    console.log(`  Fetching ${symbol} (${yahooSymbol}) from Yahoo Finance...`);
+    console.log(`  Fetching ${symbol} (${yahooSymbol}) from Yahoo Finance at ${interval} interval...`);
 
-    const quotes = await yf.historical(yahooSymbol, {
+    // Use chart() instead of historical() - more reliable and avoids null value errors
+    const result = await yf.chart(yahooSymbol, {
       period1: new Date(fromDate),
       period2: new Date(toDate),
-      interval: '1d', // Daily data
+      interval, 
     });
 
-    if (!quotes || quotes.length === 0) {
+    if (!result.quotes || result.quotes.length === 0) {
       console.warn(`  ⚠️ No price data returned for ${symbol}`);
       return [];
     }
 
     // Convert Yahoo Finance data to our format
-    const history = quotes
-      .filter((q: any) => q && q.close && q.date)
+    const history = result.quotes
+      .filter((q: any) => q && q.close != null && q.date)
       .map((q: any) => ({
         timestamp: new Date(q.date).getTime(),
         price: q.close,

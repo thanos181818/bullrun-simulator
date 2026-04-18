@@ -12,6 +12,16 @@ import {
   Bitcoin,
   Landmark,
   BrainCircuit,
+  Rocket,
+  Trophy,
+  Flame,
+  PieChart,
+  Zap,
+  Crown,
+  Building2,
+  Target,
+  Wallet,
+  BadgeDollarSign,
 } from 'lucide-react';
 import type { Badge } from '@/lib/types';
 import {
@@ -48,6 +58,16 @@ const iconMap: { [key: string]: React.FC<LucideProps> } = {
   Bitcoin,
   Landmark,
   BrainCircuit,
+  Rocket,
+  Trophy,
+  Flame,
+  PieChart,
+  Zap,
+  Crown,
+  Building2,
+  Target,
+  Wallet,
+  BadgeDollarSign,
 };
 
 export function BadgeList({ userBadges }: BadgeListProps) {

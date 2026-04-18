@@ -63,29 +63,22 @@ export function SummaryCards() {
         toast({
           title: 'Daily Bonus Claimed!',
           description: data.message,
+          duration: 7000,
         });
         
-        // Optimistically update the bonus data to show it's claimed
-        const nextBonusTime = new Date();
-        nextBonusTime.setDate(nextBonusTime.getDate() + 1);
-        nextBonusTime.setHours(0, 0, 0, 0);
-        
-        const updatedBonusData = {
-          canClaim: false,
-          bonusAmount: 1000,
-          lastClaimedDate: new Date(),
-          nextBonusAvailable: nextBonusTime,
-        };
-        
-        // Immediately update local SWR cache
+        // Update local SWR cache immediately to hide the button
         mutate(
-          `/api/users/${session.user.email}/claim-daily-bonus`,
-          updatedBonusData,
+          session?.user?.id ? `/api/users/${session.user.id}/claim-daily-bonus` : null,
+          {
+            canClaim: false,
+            bonusAmount: 1000,
+            nextBonusAvailable: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          },
           false
         );
         
         // Also revalidate user data
-        mutate(`/api/users/${session.user.email}`);
+        mutate(session?.user?.email ? `/api/users/${session.user.email}` : null);
       } else {
         toast({
           variant: 'destructive',

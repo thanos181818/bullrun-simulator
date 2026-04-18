@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { Asset, PriceData } from '@/lib/types';
 import { create } from 'zustand';
 import useSWR from 'swr';
@@ -34,9 +34,34 @@ const useAssetPriceStore = create<AssetPriceStore>((set, get) => ({
     set({ assets: enrichedAssets, isLoading: false });
   },
   setAssetHistory: (symbol: string, history: PriceData[]) => {
-    set(state => ({
-      assetHistoryCache: { ...state.assetHistoryCache, [symbol]: history }
-    }));
+    set(state => {
+      const currentHistory = state.assetHistoryCache[symbol] || [];
+      
+      // If the new history is substantially different (e.g., a new duration), overwrite it
+      // Otherwise, merge it (preferring API data for historical points)
+      let mergedHistory: PriceData[];
+      
+      if (history.length > 50) {
+        // This is likely a full fetch from the API, merge it with existing points if any
+        // but prefer the API data for points that overlap
+        const historyTimes = new Set(history.map(p => p.time));
+        const uniqueCurrent = currentHistory.filter(p => !historyTimes.has(p.time));
+        
+        mergedHistory = [...history, ...uniqueCurrent].sort((a, b) => a.time - b.time);
+        
+        // Keep only the last 2000 points to prevent memory issues
+        if (mergedHistory.length > 2000) {
+          mergedHistory = mergedHistory.slice(mergedHistory.length - 2000);
+        }
+      } else {
+        // Small history update, just replace (or merge if needed)
+        mergedHistory = history;
+      }
+      
+      return {
+        assetHistoryCache: { ...state.assetHistoryCache, [symbol]: mergedHistory }
+      };
+    });
   },
   updateLivePrices: (priceUpdates: Record<string, number>) => {
     const now = Date.now();
@@ -46,6 +71,14 @@ const useAssetPriceStore = create<AssetPriceStore>((set, get) => ({
         if (newPrice !== undefined) {
             const change = newPrice - asset.initialPrice;
             const changePercent = asset.initialPrice > 0 ? (change / asset.initialPrice) * 100 : 0;
+            
+            // Sync simulation state with the real quote to prevent jumping back
+            if (simulationState[asset.symbol]) {
+              simulationState[asset.symbol].basePrice = newPrice;
+              simulationState[asset.symbol].trendStartPrice = newPrice;
+              simulationState[asset.symbol].lastPrice = newPrice;
+            }
+            
             return { ...asset, price: newPrice, change, changePercent };
         }
         return asset;
@@ -55,10 +88,19 @@ const useAssetPriceStore = create<AssetPriceStore>((set, get) => ({
       const newHistoryCache = { ...state.assetHistoryCache };
       Object.keys(priceUpdates).forEach(symbol => {
           if (newHistoryCache[symbol]) {
-              const currentHistory = newHistoryCache[symbol];
+              const currentHistory = [...newHistoryCache[symbol]];
               const lastTimestamp = currentHistory.length > 0 ? currentHistory[currentHistory.length - 1].time : 0;
-              if (now > lastTimestamp) {
-                  newHistoryCache[symbol] = [...currentHistory, { time: now, price: priceUpdates[symbol] }];
+              
+              // Only add a new point if it's at least 1 second newer
+              if (now >= lastTimestamp + 1000) {
+                  currentHistory.push({ time: now, price: priceUpdates[symbol] });
+                  
+                  // Keep only the last 2000 points for performance
+                  if (currentHistory.length > 2000) {
+                      currentHistory.shift();
+                  }
+                  
+                  newHistoryCache[symbol] = currentHistory;
               }
           }
       });
@@ -68,81 +110,134 @@ const useAssetPriceStore = create<AssetPriceStore>((set, get) => ({
   },
 }));
 
-// --- Singleton Price Simulator ---
+// --- Singleton Price Simulator with Trending ---
 
-function updateAssetGroup(assets: Asset[]) {
+// Track simulation state per asset
+const simulationState: Record<string, {
+  trendStartTime: number,
+  trendEndTime: number,
+  trendDirection: 1 | -1,
+  trendStartPrice: number,
+  basePrice: number,
+  trendDuration: number,
+  lastPrice: number
+}> = {};
+
+function initializeSimulationState(symbol: string, currentPrice: number) {
+  if (!simulationState[symbol]) {
+    const trendDuration = (3 + Math.random() * 2) * 60 * 60 * 1000; // 3-5 hours in ms
+    simulationState[symbol] = {
+      trendStartTime: Date.now(),
+      trendEndTime: Date.now() + trendDuration,
+      trendDirection: Math.random() > 0.5 ? 1 : -1,
+      trendStartPrice: currentPrice,
+      basePrice: currentPrice,
+      trendDuration,
+      lastPrice: currentPrice
+    };
+  }
+}
+
+function updateAssetGroup(assets: Asset[], isHighFreq: boolean = true) {
     const state = useAssetPriceStore.getState();
     if (assets.length === 0 || state.isLoading) return;
 
     const updatedPrices: Record<string, number> = {};
+    const now = Date.now();
 
     assets.forEach(asset => {
       const currentAsset = state.getAsset(asset.symbol);
       if (!currentAsset) return;
 
-      // Increased volatility for more realistic fluctuations
-      // Crypto: 0.5-2% per update, Stocks: 0.2-1% per update
-      const volatility = currentAsset.type === 'crypto' ? 0.015 : 0.006;
-      const rand = Math.random() - 0.5;
-      let newPrice = (currentAsset.price || currentAsset.initialPrice) * (1 + rand * volatility);
+      const currentPrice = currentAsset.price || currentAsset.initialPrice;
+      initializeSimulationState(asset.symbol, currentPrice);
 
+      const sim = simulationState[asset.symbol];
+      
+      // Check if trend should flip
+      if (now > sim.trendEndTime) {
+        sim.trendDirection = sim.trendDirection === 1 ? -1 : 1;
+        sim.trendStartTime = now;
+        sim.trendDuration = (3 + Math.random() * 2) * 60 * 60 * 1000; // 3-5 hours
+        sim.trendEndTime = now + sim.trendDuration;
+        sim.trendStartPrice = currentPrice;
+      }
+
+      // Calculate trend progress (0 to 1 over the trend period)
+      const trendProgress = (now - sim.trendStartTime) / sim.trendDuration;
+      const clampedProgress = Math.min(trendProgress, 1);
+      
+      // Trend component: smooth increase/decrease over 3-5 hours
+      const trendAmount = sim.trendDirection * sim.basePrice * (0.08 * Math.pow(clampedProgress, 1.2));
+      
+      // Volatility: small random noise (±0.02% per second for stocks, ±0.05% for crypto)
+      // This is the "micro-fluctuation" that makes it look real-time
+      const volatility = currentAsset.type === 'crypto' ? 0.0005 : 0.0002;
+      const noise = (Math.random() - 0.5) * volatility * sim.basePrice;
+      
+      // We calculate the target price based on trend + noise
+      let targetPrice = sim.trendStartPrice + trendAmount + noise;
+      
+      // To make it look smoother, we interpolate from last price
+      // but for 1s updates, just adding the noise to current price is enough
+      let newPrice = currentPrice + noise + (sim.trendDirection * sim.basePrice * (0.08 / sim.trendDuration * 1000));
+      
+      // Realistic bounds: ±15% from base price
+      const minPrice = sim.basePrice * 0.85;
+      const maxPrice = sim.basePrice * 1.15;
+      newPrice = Math.max(minPrice, Math.min(maxPrice, newPrice));
+      
       if (newPrice <= 0.01) {
         newPrice = 0.01;
       }
       
-      updatedPrices[currentAsset.symbol] = newPrice;
+      updatedPrices[asset.symbol] = parseFloat(newPrice.toFixed(2));
+      sim.lastPrice = newPrice;
     });
     
     if (Object.keys(updatedPrices).length > 0) {
         state.updateLivePrices(updatedPrices);
-        
-        // Update prices in MongoDB via API
-        fetch('/api/assets/update-prices', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prices: updatedPrices }),
-        }).catch(error => {
-          console.error("Failed to write price updates to MongoDB:", error);
-        });
     }
 }
 
-
 function startLivePriceSimulator() {
+  if (typeof window === 'undefined') return;
+  
   // Robust singleton check using the global window object, immune to Fast Refresh
   if ((window as any).isBullRunSimulationRunning) {
-    console.log("Price simulation is already running.");
     return;
   }
   (window as any).isBullRunSimulationRunning = true;
   
-  console.log("Starting the throttled price simulation timers...");
+  console.log("Starting high-frequency real-time price simulator (1s updates)...");
 
+  // Initial update
   const allAssets = useAssetPriceStore.getState().assets;
-  const highFrequencyAssets = allAssets.slice(0, 8);
-  const lowFrequencyAssets = allAssets.slice(8);
-
-  // High-frequency timer (every 60 seconds for top assets - doubled from 30s)
+  
+  // High-frequency timer (every 1 second for all assets)
+  // This makes the UI feel alive
   const highFreqTimer = setInterval(() => {
-    updateAssetGroup(highFrequencyAssets);
-  }, 60 * 1000); 
-
-  // Low-frequency timer (every 5 minutes for other assets - increased from 2 mins)
-  const lowFreqTimer = setInterval(() => {
-    updateAssetGroup(lowFrequencyAssets);
-  }, 5 * 60 * 1000);
+    const assets = useAssetPriceStore.getState().assets;
+    updateAssetGroup(assets, true);
+  }, 1000); 
 
   // Return cleanup function
   return () => {
     clearInterval(highFreqTimer);
-    clearInterval(lowFreqTimer);
+    (window as any).isBullRunSimulationRunning = false;
   };
 }
 // --- End of Singleton Price Simulator ---
 
 
 export function useAssetPrices() {
-  const store = useAssetPriceStore();
+  const assets = useAssetPriceStore(state => state.assets);
+  const updateLivePrices = useAssetPriceStore(state => state.updateLivePrices);
+  const setAssets = useAssetPriceStore(state => state.setAssets);
+  const storeIsLoading = useAssetPriceStore(state => state.isLoading);
+  const getAsset = useAssetPriceStore(state => state.getAsset);
+  const getAssetHistory = useAssetPriceStore(state => state.getAssetHistory);
+  const setAssetHistory = useAssetPriceStore(state => state.setAssetHistory);
 
   const { data: dbAssets, isLoading: isDbAssetsLoading } = useSWR<Asset[]>('/api/assets', fetcher, {
     refreshInterval: 300000, // Refresh every 5 minutes (reduced from 60s)
@@ -151,20 +246,46 @@ export function useAssetPrices() {
     revalidateOnFocus: false, // Don't revalidate on window focus
   });
   
+  // Real-time anchor: Fetch actual market prices every 30 seconds
+  const symbols = useMemo(() => dbAssets?.map(a => a.symbol).join(',') || '', [dbAssets]);
+  const { data: realQuotes } = useSWR(
+    symbols ? `/api/assets/batch-quotes?symbols=${symbols}` : null,
+    fetcher,
+    { refreshInterval: 30000 } // Update real prices every 30 seconds
+  );
+
+  useEffect(() => {
+    if (realQuotes) {
+      updateLivePrices(Object.fromEntries(
+        Object.entries(realQuotes).map(([symbol, data]: [string, any]) => [symbol, data.price])
+      ));
+    }
+  }, [realQuotes, updateLivePrices]);
+
   useEffect(() => {
     // Load assets from database and start price simulation
-    if (dbAssets && dbAssets.length > 0 && store.assets.length === 0) {
-      store.setAssets(dbAssets);
+    if (dbAssets && dbAssets.length > 0 && assets.length === 0) {
+      setAssets(dbAssets);
       startLivePriceSimulator();
     }
-  }, [dbAssets, store]);
+  }, [dbAssets, assets.length, setAssets]);
   
-  return { ...store, isLoading: store.isLoading || isDbAssetsLoading };
+  return { 
+    assets, 
+    updateLivePrices, 
+    setAssets, 
+    isLoading: storeIsLoading || isDbAssetsLoading,
+    getAsset,
+    getAssetHistory,
+    setAssetHistory,
+  };
 }
 
 // Hook to fetch price history for a specific asset
 export function useAssetHistory(symbol: string, range: string = '1D') {
-  const store = useAssetPriceStore();
+  const getAssetHistory = useAssetPriceStore(state => state.getAssetHistory);
+  const setAssetHistory = useAssetPriceStore(state => state.setAssetHistory);
+  const cachedHistory = useAssetPriceStore(state => state.assetHistoryCache[symbol]);
   
   const { data, error, isLoading } = useSWR<PriceData[]>(
     symbol ? `/api/price-history?symbol=${symbol}&range=${range}` : null,
@@ -180,12 +301,12 @@ export function useAssetHistory(symbol: string, range: string = '1D') {
 
   useEffect(() => {
     if (data && symbol) {
-      store.setAssetHistory(symbol, data);
+      setAssetHistory(symbol, data);
     }
-  }, [data, symbol]);
+  }, [data, symbol, setAssetHistory]);
 
   return {
-    data: store.getAssetHistory(symbol) || data || [],
+    data: cachedHistory || data || [],
     isLoading,
     error,
   };

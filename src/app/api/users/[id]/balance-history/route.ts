@@ -12,9 +12,9 @@ export async function GET(
     const { id } = await params;
 
     // Try to find user by email first, then by ObjectId
-    let user = await UserModel.findOne({ email: id }).lean();
+    let user = await UserModel.findOne({ email: id }).select('balanceHistory cashBalance cashEarned').lean();
     if (!user) {
-      user = await UserModel.findById(id).lean();
+      user = await UserModel.findById(id).select('balanceHistory cashBalance cashEarned').lean();
     }
 
     if (!user) {

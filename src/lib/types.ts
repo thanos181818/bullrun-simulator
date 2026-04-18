@@ -10,9 +10,20 @@ export type User = {
   maxPortfolioValue?: number; // tracks highest portfolio value for comeback kid badge
   totalReturn: number;
   totalReturnPercent: number;
+  cashEarned: number;
   badgeIds: string[];
+  balanceHistory?: Array<{
+    type: 'initial' | 'trade' | 'achievement' | 'daily-bonus' | 'manual-add';
+    amount: number;
+    description: string;
+    reference?: string;
+    balanceAfter: number;
+    createdAt?: Date;
+  }>;
   watchlist: string[];
   themePreference: 'light' | 'dark' | 'system';
+  lastLoginDate?: Date;
+  lastDailyBonusDate?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   createdAt?: Date;

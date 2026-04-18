@@ -84,11 +84,14 @@ export function StockChart({ data, isPositive, duration }: StockChartProps) {
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
         <XAxis
           dataKey="time"
+          type="number"
+          domain={['dataMin', 'dataMax']}
           tickFormatter={formatXAxis}
           stroke="hsl(var(--muted-foreground))"
           fontSize={12}
           tickLine={false}
           axisLine={false}
+          scale="time"
         />
         <YAxis
           domain={['dataMin', 'dataMax']}

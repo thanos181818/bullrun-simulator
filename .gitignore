@@ -53,3 +53,5 @@ env files.txt
 # ignore studio config folder only
 .studio/
 
+
+.vercel

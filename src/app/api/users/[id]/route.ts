@@ -34,12 +34,15 @@ export async function GET(
       fullName: user.fullName,
       avatar: user.avatar,
       cashBalance: user.cashBalance,
+      cashEarned: user.cashEarned || 0,
       portfolioValue: user.portfolioValue,
+      maxPortfolioValue: user.maxPortfolioValue || 0,
       totalReturn: user.totalReturn,
       totalReturnPercent: user.totalReturnPercent,
       badgeIds: user.badgeIds || [],
       watchlist: user.watchlist || [],
       themePreference: user.themePreference || 'system',
+      balanceHistory: user.balanceHistory || [],
     });
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -87,12 +90,15 @@ export async function PATCH(
       fullName: user.fullName,
       avatar: user.avatar,
       cashBalance: user.cashBalance,
+      cashEarned: user.cashEarned || 0,
       portfolioValue: user.portfolioValue,
+      maxPortfolioValue: user.maxPortfolioValue || 0,
       totalReturn: user.totalReturn,
       totalReturnPercent: user.totalReturnPercent,
       badgeIds: user.badgeIds || [],
       watchlist: user.watchlist || [],
       themePreference: user.themePreference || 'system',
+      balanceHistory: user.balanceHistory || [],
     });
   } catch (error) {
     console.error('Error updating user:', error);

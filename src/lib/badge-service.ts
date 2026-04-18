@@ -46,38 +46,49 @@ export async function checkAndAwardBadges(
     const awardBadge = async (badgeId: string, badgeRarity?: string) => {
       if (!earnedBadges.includes(badgeId)) {
         console.log(`[BADGE AWARD] Awarding badge: ${badgeId}`);
-        const updatedBadges = [...earnedBadges, badgeId];
         
         // Calculate cash reward based on badge rarity
         let cashReward = 0;
         switch (badgeRarity) {
-          case 'legendary':
-            cashReward = 5000;
-            break;
-          case 'epic':
-            cashReward = 2500;
-            break;
-          case 'rare':
-            cashReward = 1000;
-            break;
+          case 'legendary': cashReward = 5000; break;
+          case 'epic': cashReward = 2500; break;
+          case 'rare': cashReward = 1000; break;
           case 'common':
-          default:
-            cashReward = 500;
-            break;
+          default: cashReward = 500; break;
         }
 
-        // Update user badges, cash balance, and total cash earned
-        const currentUser = await fetch(`/api/users/${userId}`).then(r => r.json());
-        const currentBalance = currentUser.cashBalance || 0;
-        const totalCashEarned = (currentUser.cashEarned || 0) + cashReward;
+        // Fetch latest user data again to ensure we have current balance/history
+        const userRes = await fetch(`/api/users/${userId}`);
+        const user = await userRes.json();
         
+        const currentBalance = user.cashBalance || 0;
+        const currentBadges = user.badgeIds || [];
+        const currentHistory = user.balanceHistory || [];
+        const currentCashEarned = user.cashEarned || 0;
+
+        const badgeInfo = allBadges.find(b => b.id === badgeId);
+        
+        // Prepare updated data
+        const updatedBadges = [...currentBadges, badgeId];
+        const newBalance = currentBalance + cashReward;
+        
+        const newHistoryItem = {
+          type: 'achievement',
+          amount: cashReward,
+          description: `Achievement Unlocked: ${badgeInfo?.title || badgeId}`,
+          reference: badgeId,
+          balanceAfter: newBalance,
+          createdAt: new Date(),
+        };
+
         const response = await fetch(`/api/users/${userId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             badgeIds: updatedBadges,
-            cashBalance: currentBalance + cashReward,
-            cashEarned: totalCashEarned,
+            cashBalance: newBalance,
+            balanceHistory: [...currentHistory, newHistoryItem],
+            cashEarned: currentCashEarned + cashReward // Rewards count towards total earned
           }),
         });
         
@@ -193,10 +204,16 @@ export async function checkAndAwardBadges(
       newBadgesAwarded.forEach((badgeId) => {
         const badgeInfo = allBadges.find((b) => b.id === badgeId);
         if (badgeInfo) {
+          // Determine reward amount for notification
+          let reward = 500;
+          if (badgeInfo.rarity === 'legendary') reward = 5000;
+          else if (badgeInfo.rarity === 'epic') reward = 2500;
+          else if (badgeInfo.rarity === 'rare') reward = 1000;
+
           toast({
             title: '🎉 Achievement Unlocked!',
-            description: `You've earned the "${badgeInfo.title}" badge and cash reward!`,
-            duration: 5000,
+            description: `You've earned the "${badgeInfo.title}" badge and a $${reward} reward!`,
+            duration: 7000,
           });
         }
       });

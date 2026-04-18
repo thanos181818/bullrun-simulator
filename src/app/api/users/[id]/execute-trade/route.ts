@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectToDatabase from '@/lib/mongodb';
 import { UserModel, PortfolioModel, TradeModel, AssetModel } from '@/lib/models/schemas';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth.config';
 import { ClientSession } from 'mongodb';
 import mongoose from 'mongoose';
 
@@ -121,7 +121,19 @@ export async function POST(
             throw new Error('You cannot sell more than you own.');
           }
           
-          // Update balance
+          // Update balance and track realized profit for "Cash Earned" badge
+          const realizedProfit = (price - holding.avgBuyPrice) * quantity;
+          const currentCashEarned = typeof user.cashEarned === 'number' ? user.cashEarned : 0;
+          const newCashEarned = realizedProfit > 0 ? currentCashEarned + realizedProfit : currentCashEarned;
+
+          await UserModel.findByIdAndUpdate(
+            user._id,
+            { 
+              cashBalance: currentBalance + totalAmount,
+              cashEarned: newCashEarned
+            },
+            { session: mongoSession }
+          );
           currentBalance += totalAmount;
           
           // Update or remove holding
@@ -134,14 +146,14 @@ export async function POST(
               avgBuyPrice: holding.avgBuyPrice,
             };
           }
+        } else {
+          // Update user balance for buy orders
+          await UserModel.findByIdAndUpdate(
+            user._id,
+            { cashBalance: currentBalance },
+            { session: mongoSession }
+          );
         }
-        
-        // Update user balance with actual _id
-        await UserModel.findByIdAndUpdate(
-          user._id,
-          { cashBalance: currentBalance },
-          { session: mongoSession }
-        );
         
         // Calculate updated portfolio value and total return
         // Fetch current prices for all holdings

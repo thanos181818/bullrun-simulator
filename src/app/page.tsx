@@ -7,20 +7,22 @@ import { AiInsights } from '@/components/dashboard/ai-insights';
 import { Watchlist } from '@/components/dashboard/watchlist';
 import { RecentTrades } from '@/components/dashboard/recent-trades';
 import { useState } from 'react';
+import { useTranslation } from '@/contexts/translation-context';
 
 type AssetTypeFilter = 'all' | 'stock' | 'crypto';
 
 export default function DashboardPage() {
   const [filter, setFilter] = useState<AssetTypeFilter>('all');
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-8 animate-scale-in">
       <div className="stagger-fade-in stagger-1">
         <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-          Market Dashboard
+          {t('dashboard.title')}
         </h1>
         <p className="text-muted-foreground/80 mt-2 text-base">
-          Real-time overview of your portfolio and market activity
+          {t('dashboard.subtitle')}
         </p>
       </div>
       <div className="stagger-fade-in stagger-2">
@@ -32,7 +34,7 @@ export default function DashboardPage() {
             <Card className="stagger-fade-in stagger-3 hover-lift" data-tour="market-overview">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-semibold">Market Overview</CardTitle>
+                  <CardTitle className="text-xl font-semibold">{t('dashboard.marketOverview')}</CardTitle>
                   <div className="flex gap-2">
                     <Button
                       variant={filter === 'stock' ? 'default' : 'outline'}
@@ -40,7 +42,7 @@ export default function DashboardPage() {
                       onClick={() => setFilter(filter === 'stock' ? 'all' : 'stock')}
                       className="font-medium transition-all duration-200"
                     >
-                      Stocks
+                      {t('common.stocks') || 'Stocks'}
                     </Button>
                     <Button
                       variant={filter === 'crypto' ? 'default' : 'outline'}
@@ -48,7 +50,7 @@ export default function DashboardPage() {
                       onClick={() => setFilter(filter === 'crypto' ? 'all' : 'crypto')}
                       className="font-medium transition-all duration-200"
                     >
-                      Crypto
+                      {t('common.crypto') || 'Crypto'}
                     </Button>
                   </div>
                 </div>

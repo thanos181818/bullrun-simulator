@@ -70,29 +70,45 @@ export default function TradePage() {
 
   const livePrice = asset?.price || 0;
   
-  // Prepare chart data: append current live price to history (MUST be before any returns)
+  // Prepare chart data: Use the history from the store (which includes live-simulated points)
   const chartData = useMemo(() => {
     if (!priceHistory || priceHistory.length === 0) {
-      // If no history yet, show just the current price
       return [{ time: Date.now(), price: livePrice }];
     }
-    
-    // Append live price as the latest data point
-    const now = Date.now();
-    const lastHistoryPoint = priceHistory[priceHistory.length - 1];
-    
-    if (lastHistoryPoint && lastHistoryPoint.time < now - 60000) {
-      // If last point is more than 1 minute old, append live price
-      return [...priceHistory, { time: now, price: livePrice }];
-    }
-    
     return priceHistory;
   }, [priceHistory, livePrice]);
   
   const estimatedTotal = (parseFloat(quantity) || 0) * livePrice;
-  const startPrice = chartData.length > 1 ? chartData[0].price : (asset?.initialPrice || livePrice);
-  const changePercent = startPrice > 0 ? ((livePrice - startPrice) / startPrice) * 100 : 0;
-  const isPositiveChange = changePercent >= 0;
+  
+  // Calculate price change based on the selected range
+  const rangeChangeData = useMemo(() => {
+    if (!chartData || chartData.length < 2) {
+      return { percent: 0, isPositive: true };
+    }
+    
+    // For 1D, we want to show change since the very first point of the 24h period
+    // which is standard for most finance apps.
+    const startPrice = chartData[0].price;
+    const currentPrice = livePrice;
+    
+    if (startPrice === 0) return { percent: 0, isPositive: true };
+    
+    const percent = ((currentPrice - startPrice) / startPrice) * 100;
+    
+    // If the change is suspiciously high (like 988%), fallback to asset initial price
+    if (Math.abs(percent) > 500 && asset?.initialPrice) {
+       const altPercent = ((currentPrice - asset.initialPrice) / asset.initialPrice) * 100;
+       return { percent: altPercent, isPositive: altPercent >= 0 };
+    }
+
+    return {
+      percent: percent,
+      isPositive: percent >= 0
+    };
+  }, [chartData, livePrice, asset]);
+
+  const isPositiveChange = rangeChangeData.isPositive;
+  const changePercent = rangeChangeData.percent;
   
   // Check if asset doesn't exist after loading completes
   useEffect(() => {

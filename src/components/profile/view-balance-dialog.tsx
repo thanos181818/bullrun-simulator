@@ -42,10 +42,10 @@ export function ViewBalanceDialog({ userEmail }: { userEmail: string }) {
     fetcher
   );
 
-  const getTransactionIcon = (type: string) => {
+  const getTransactionIcon = (type: string, amount: number) => {
     switch (type) {
       case 'trade':
-        return <TrendingDown className="h-4 w-4 text-red-500" />;
+        return amount < 0 ? <TrendingDown className="h-4 w-4 text-red-500" /> : <TrendingUp className="h-4 w-4 text-green-500" />;
       case 'achievement':
         return <Gift className="h-4 w-4 text-purple-500" />;
       case 'daily-bonus':
@@ -141,7 +141,7 @@ export function ViewBalanceDialog({ userEmail }: { userEmail: string }) {
                     >
                       <div className="flex items-center gap-3 flex-1">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/50">
-                          {getTransactionIcon(tx.type)}
+                          {getTransactionIcon(tx.type, tx.amount)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{tx.description}</p>
