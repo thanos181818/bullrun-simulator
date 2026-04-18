@@ -204,10 +204,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 3. Make sure you have ALL these variables:
 
 ```bash
-MONGODB_URI=mongodb+srv://oloouser:OlooPass123@oloo-cluster.qcvzzq5.mongodb.net/oloo?retryWrites=true&w=majority
-NEXTAUTH_SECRET=fIBrXIiaIj3AtdszL7/OCP3VaJJP0x1ewjj/GNHLgvQ=
-NEXTAUTH_URL=https://your-app.vercel.app
-GEMINI_API_KEY=AIzaSyCLrViVpwiIohGGQgibIbldYHnOLDtrE8M
 ```
 
 ⚠️ **IMPORTANT**: 
