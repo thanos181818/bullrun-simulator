@@ -26,6 +26,8 @@ export type User = {
   lastDailyBonusDate?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  resetOTP?: string;
+  resetOTPExpires?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -91,6 +93,7 @@ export type Asset = {
   marketCap: number;
   type: 'stock' | 'crypto';
   initialPrice: number;
+  coingeckoId?: string;
 };
 
 export type LeaderboardEntry = {

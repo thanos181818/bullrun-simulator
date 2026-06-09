@@ -57,20 +57,11 @@ export async function checkAndAwardBadges(
           default: cashReward = 500; break;
         }
 
-        // Fetch latest user data again to ensure we have current balance/history
-        const userRes = await fetch(`/api/users/${userId}`);
-        const user = await userRes.json();
-        
-        const currentBalance = user.cashBalance || 0;
-        const currentBadges = user.badgeIds || [];
-        const currentHistory = user.balanceHistory || [];
-        const currentCashEarned = user.cashEarned || 0;
-
         const badgeInfo = allBadges.find(b => b.id === badgeId);
         
         // Prepare updated data
-        const updatedBadges = [...currentBadges, badgeId];
-        const newBalance = currentBalance + cashReward;
+        const updatedBadges = [...earnedBadges, badgeId];
+        const newBalance = (userData.cashBalance || 0) + cashReward;
         
         const newHistoryItem = {
           type: 'achievement',
@@ -87,8 +78,8 @@ export async function checkAndAwardBadges(
           body: JSON.stringify({ 
             badgeIds: updatedBadges,
             cashBalance: newBalance,
-            balanceHistory: [...currentHistory, newHistoryItem],
-            cashEarned: currentCashEarned + cashReward // Rewards count towards total earned
+            balanceHistory: [...(userData.balanceHistory || []), newHistoryItem],
+            cashEarned: (userData.cashEarned || 0) + cashReward 
           }),
         });
         
@@ -96,13 +87,18 @@ export async function checkAndAwardBadges(
           console.error(`[BADGE AWARD] Failed to update user with badge ${badgeId}`);
           return 0;
         }
-        
-        console.log(`[BADGE REWARD] User ${userId} earned badge ${badgeId} and $${cashReward}`);
-        
-        newBadgesAwarded.push(badgeId);
-        earnedBadges.push(badgeId); // Add to local list to prevent re-awarding in same run
-        
-        return cashReward;
+
+        // Update local userData and earnedBadges to reflect changes for subsequent badge checks
+         userData.cashBalance = newBalance;
+         userData.badgeIds = updatedBadges;
+         userData.balanceHistory = [...(userData.balanceHistory || []), newHistoryItem];
+         userData.cashEarned = (userData.cashEarned || 0) + cashReward;
+         earnedBadges.push(badgeId);
+         
+         console.log(`[BADGE REWARD] User ${userId} earned badge ${badgeId} and $${cashReward}`);
+         
+         newBadgesAwarded.push(badgeId);
+         return cashReward;
       }
       return 0;
     };

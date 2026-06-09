@@ -34,6 +34,8 @@ const UserSchema = new Schema<UserDocument>({
   themePreference: { type: String, default: 'system' },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+  resetOTP: String,
+  resetOTPExpires: Date,
   lastLoginDate: Date,
   lastDailyBonusDate: Date,
 }, { timestamps: true });
@@ -54,6 +56,7 @@ const AssetSchema = new Schema<AssetDocument>({
   marketCap: { type: Number, required: true },
   type: { type: String, enum: ['stock', 'crypto'], required: true },
   initialPrice: { type: Number, required: true },
+  coingeckoId: { type: String, default: null }, // NEW: for dynamic crypto mapping
 }, { timestamps: true });
 
 export const AssetModel: Model<AssetDocument> = mongoose.models.Asset || mongoose.model<AssetDocument>('Asset', AssetSchema);
@@ -147,3 +150,31 @@ const PriceHistorySchema = new Schema<PriceHistoryDocument>({
 PriceHistorySchema.index({ symbol: 1, timestamp: 1 });
 
 export const PriceHistoryModel: Model<PriceHistoryDocument> = mongoose.models.PriceHistory || mongoose.model<PriceHistoryDocument>('PriceHistory', PriceHistorySchema);
+
+// PortfolioSnapshot Schema (NEW for Decision D)
+export interface PortfolioSnapshotDocument extends Document {
+  userId: string;
+  timestamp: Date;
+  totalValue: number;
+  cashBalance: number;
+  holdingsValue: number;
+  priceSnapshot: Map<string, number>;
+}
+
+const PortfolioSnapshotSchema = new Schema<PortfolioSnapshotDocument>({
+  userId: { type: String, required: true, index: true },
+  timestamp: { type: Date, required: true, default: Date.now },
+  totalValue: { type: Number, required: true },
+  cashBalance: { type: Number, required: true },
+  holdingsValue: { type: Number, required: true },
+  priceSnapshot: {
+    type: Map,
+    of: Number,
+    default: {},
+  },
+});
+
+// Compound index for efficient range queries
+PortfolioSnapshotSchema.index({ userId: 1, timestamp: -1 });
+
+export const PortfolioSnapshotModel: Model<PortfolioSnapshotDocument> = mongoose.models.PortfolioSnapshot || mongoose.model<PortfolioSnapshotDocument>('PortfolioSnapshot', PortfolioSnapshotSchema);

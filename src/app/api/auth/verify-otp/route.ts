@@ -1,26 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import { UserModel } from '@/lib/models/schemas';
-import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
-// POST /api/auth/reset-password - Reset password with OTP
+// POST /api/auth/verify-otp - Verify the OTP code
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     
-    const { email, otp, password } = await request.json();
+    const { email, otp } = await request.json();
     
-    if (!email || !otp || !password) {
+    if (!email || !otp) {
       return NextResponse.json(
-        { error: 'Email, OTP, and password are required' },
-        { status: 400 }
-      );
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: 'Password must be at least 6 characters' },
+        { error: 'Email and OTP are required' },
         { status: 400 }
       );
     }
@@ -42,25 +34,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Update password and clear OTP fields
-    user.password = hashedPassword;
-    user.resetOTP = undefined;
-    user.resetOTPExpires = undefined;
-    await user.save();
-
+    // Return success. In a real app, you might return a temporary token 
+    // to secure the password reset step, but for simplicity here 
+    // we'll just confirm it's valid.
     return NextResponse.json({
       success: true,
-      message: 'Password has been reset successfully. You can now log in with your new password.',
+      message: 'OTP verified successfully.',
     });
 
-
   } catch (error) {
-    console.error('Error resetting password:', error);
+    console.error('Error verifying OTP:', error);
     return NextResponse.json(
-      { error: 'Failed to reset password' },
+      { error: 'Failed to verify OTP' },
       { status: 500 }
     );
   }

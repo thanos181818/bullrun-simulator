@@ -51,7 +51,7 @@ describe('Badge Service - checkAndAwardBadges', () => {
         body: JSON.stringify({ badgeIds: ['first_trade'] }),
       })
     );
-    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: '🏆 Achievement Unlocked!' }));
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: '🎉 Achievement Unlocked!' }));
   });
 
   // Test Case 2: Do NOT Award a Duplicate Badge

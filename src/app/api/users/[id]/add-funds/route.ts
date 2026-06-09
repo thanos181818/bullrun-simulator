@@ -48,8 +48,21 @@ export async function POST(
     const currentBalance = user.cashBalance || 0;
     const newBalance = currentBalance + amount;
     
+    // Create balance history entry
+    const balanceHistory = user.balanceHistory || [];
+    balanceHistory.push({
+      type: 'manual-add',
+      amount: amount,
+      description: `Added funds to account`,
+      balanceAfter: newBalance,
+      createdAt: new Date(),
+    });
+
     // Use actual MongoDB _id for update
-    await UserModel.findByIdAndUpdate(user._id, { cashBalance: newBalance });
+    await UserModel.findByIdAndUpdate(user._id, { 
+      cashBalance: newBalance,
+      balanceHistory
+    });
     
     
     return NextResponse.json({

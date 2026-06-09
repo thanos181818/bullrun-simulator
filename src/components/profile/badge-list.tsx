@@ -22,6 +22,14 @@ import {
   Target,
   Wallet,
   BadgeDollarSign,
+  Star,
+  ZapOff,
+  ShieldCheck,
+  TrendingDown,
+  Activity,
+  BookOpen,
+  GraduationCap,
+  Lightbulb,
 } from 'lucide-react';
 import type { Badge } from '@/lib/types';
 import {
@@ -68,6 +76,14 @@ const iconMap: { [key: string]: React.FC<LucideProps> } = {
   Target,
   Wallet,
   BadgeDollarSign,
+  Star,
+  ZapOff,
+  ShieldCheck,
+  TrendingDown,
+  Activity,
+  BookOpen,
+  GraduationCap,
+  Lightbulb,
 };
 
 export function BadgeList({ userBadges }: BadgeListProps) {
@@ -106,43 +122,82 @@ export function BadgeList({ userBadges }: BadgeListProps) {
               {badges.map((badge) => {
                 const hasBadge = userBadges.includes(badge.id);
                 const Icon = iconMap[badge.icon] || PocketKnife;
+                
+                const rarityColors: Record<string, string> = {
+                  common: 'text-blue-500',
+                  rare: 'text-emerald-500',
+                  epic: 'text-purple-500',
+                  legendary: 'text-amber-500',
+                };
+
+                const rarityBg: Record<string, string> = {
+                  common: 'bg-blue-500/10 border-blue-500/30',
+                  rare: 'bg-emerald-500/10 border-emerald-500/30',
+                  epic: 'bg-purple-500/10 border-purple-500/30',
+                  legendary: 'bg-amber-500/10 border-amber-500/30',
+                };
+
                 return (
                   <Tooltip key={badge.id}>
                     <TooltipTrigger asChild>
                       <div
                         className={cn(
-                          'flex w-28 flex-col items-center gap-2 rounded-lg border p-4 text-center',
+                          'flex w-28 flex-col items-center gap-2 rounded-lg border p-4 text-center transition-all duration-300',
                           hasBadge
-                            ? 'border-primary/50 bg-primary/10'
-                            : 'border-dashed opacity-40'
+                            ? cn(rarityBg[badge.rarity] || 'border-primary/50 bg-primary/10', 'scale-105 shadow-sm')
+                            : 'border-dashed opacity-40 grayscale'
                         )}
                       >
                         <Icon
                           className={cn(
                             'h-8 w-8',
-                            hasBadge ? 'text-primary' : 'text-muted-foreground'
+                            hasBadge 
+                              ? (rarityColors[badge.rarity] || 'text-primary') 
+                              : 'text-muted-foreground'
                           )}
                         />
                         <span
                           className={cn(
-                            'text-xs font-medium',
-                            hasBadge ? 'text-primary' : 'text-muted-foreground'
+                            'text-xs font-bold uppercase tracking-tight',
+                            hasBadge 
+                              ? (rarityColors[badge.rarity] || 'text-primary') 
+                              : 'text-muted-foreground'
                           )}
                         >
                           {badge.title}
                         </span>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="font-semibold">{badge.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {badge.description}
-                      </p>
-                      {!hasBadge && (
-                        <p className="mt-1 text-xs text-destructive">
-                          (Not earned yet)
+                    <TooltipContent side="bottom" className="max-w-xs p-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-bold text-base">{badge.title}</p>
+                          <span className={cn(
+                            "text-[10px] px-1.5 py-0.5 rounded-full border font-bold uppercase",
+                            rarityBg[badge.rarity] || "bg-primary/10",
+                            rarityColors[badge.rarity] || "text-primary"
+                          )}>
+                            {badge.rarity}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {badge.description}
                         </p>
-                      )}
+                        {!hasBadge && (
+                          <div className="mt-2 pt-2 border-t border-border/50">
+                            <p className="text-xs font-semibold text-destructive flex items-center gap-1">
+                              <ZapOff className="h-3 w-3" /> Not earned yet
+                            </p>
+                          </div>
+                        )}
+                        {hasBadge && (
+                          <div className="mt-2 pt-2 border-t border-border/50">
+                            <p className="text-xs font-semibold text-emerald-500 flex items-center gap-1">
+                              <ShieldCheck className="h-3 w-3" /> Achievement Unlocked
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </TooltipContent>
                   </Tooltip>
                 );
