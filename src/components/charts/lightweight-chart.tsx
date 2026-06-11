@@ -56,9 +56,6 @@ export function LightweightChart({ data, isPositive, className }: LightweightCha
       },
       handleScroll: false,
       handleScale: false,
-      watermark: {
-        visible: false,
-      },
       attributionLogo: false,
     });
 

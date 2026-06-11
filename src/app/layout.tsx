@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'BullRun Trading Simulator',
   description: 'Learn to trade with real market data and zero risk.',
   icons: {
-    icon: '././logo.jpg',
+    icon: '/logo.jpg',
   },
 };
 
