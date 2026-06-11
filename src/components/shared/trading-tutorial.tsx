@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
+const GUIDE_URL = 'https://app.tango.us/app/embed/0269f00c-956b-461a-a1da-b2ffd890cc3b';
+
 export function TradingTutorial() {
   const { data: session } = useSession();
   const [isActive, setIsActive] = useState(false);
@@ -18,9 +20,8 @@ export function TradingTutorial() {
 
   const handleClose = () => setIsActive(false);
 
-  const handleDownloadGuide = () => {
-    // PDF download — to be wired up
-    console.log('Download guide clicked');
+  const handleOpenGuide = () => {
+    window.open(GUIDE_URL, '_blank', 'noopener,noreferrer');
   };
 
   if (!isActive) return null;
@@ -61,16 +62,16 @@ export function TradingTutorial() {
           <p className="text-sm text-muted-foreground leading-relaxed">
             We have put together a comprehensive guide that walks you through every
             feature, from placing your first trade to reading market charts and
-            earning badges. Download it to keep as a reference while you explore.
+            earning badges. Open it to keep as a reference while you explore.
           </p>
 
           {/* ── Buttons ──────────────────────────────── */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
               className="flex-1 h-11 font-semibold text-sm rounded-lg shadow-sm"
-              onClick={handleDownloadGuide}
+              onClick={handleOpenGuide}
             >
-              Download Guide
+              View Demo
             </Button>
             <Button
               variant="outline"
