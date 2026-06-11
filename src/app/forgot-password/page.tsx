@@ -169,7 +169,7 @@ export default function ForgotPasswordPage() {
           <ThemeToggle />
         </div>
         
-        <Card className="w-full max-w-[420px] shadow-glass-lg border-white/10 bg-background/50 backdrop-blur-2xl overflow-hidden">
+        <Card className="w-full max-w-[400px] shadow-2xl border-primary/10 bg-background/60 backdrop-blur-2xl">
           <CardHeader className="space-y-3 pb-6 text-center">
             <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
               {step === 1 && <MailCheck className="h-6 w-6 text-primary" />}

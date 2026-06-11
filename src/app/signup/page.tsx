@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthVisualPanel } from '@/components/auth/auth-visual-panel';
 import { useSession, signIn } from 'next-auth/react';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
-
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -76,40 +76,54 @@ export default function SignupPage() {
   if (status === 'loading' || session) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
-        <p className="text-foreground">Loading...</p>
+        <div className="animate-pulse flex flex-col items-center">
+             <div className="h-8 w-8 rounded-full border-4 border-primary border-t-transparent animate-spin mb-4"></div>
+             <p className="text-foreground text-sm tracking-widest font-medium uppercase">Authenticating...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
-      <AuthVisualPanel />
-      <div className="flex items-center justify-center py-12">
-        <div className="absolute top-4 right-4">
+    <div className="w-full min-h-screen flex lg:grid lg:grid-cols-2 bg-gradient-to-br from-background via-background/95 to-background/90 relative overflow-hidden">
+      <div className="hidden lg:block relative h-full">
+         <AuthVisualPanel />
+      </div>
+      
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 relative z-20">
+        {/* Subtle animated background blooms behind the card */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] opacity-50 animate-pulse -z-10 mix-blend-screen"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px] opacity-50 animate-pulse -z-10 mix-blend-screen" style={{ animationDelay: '2s' }}></div>
+
+        <div className="absolute top-4 right-4 z-50">
           <ThemeToggle />
         </div>
-        <div className="mx-auto grid w-[350px] gap-6">
-            <div className="grid gap-2 text-center">
-              <h1 className="text-3xl font-bold">Create an Account</h1>
-              <p className="text-balance text-muted-foreground">
-                Join BullRun and start your simulated trading journey.
-              </p>
-            </div>
+        
+        <Card className="w-full max-w-[400px] shadow-2xl border-primary/10 bg-background/60 backdrop-blur-2xl">
+          <CardHeader className="space-y-2 pb-6 text-center">
+            <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">Create an Account</CardTitle>
+            <CardDescription className="text-base">
+              Join BullRun and start your simulated trading journey.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <form onSubmit={handleSignup}>
-                <div className="grid gap-4">
-                <div className="grid gap-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input
+              <div className="grid gap-5">
+                <div className="grid gap-2 group">
+                  <Label htmlFor="name" className="text-sm font-medium transition-colors group-focus-within:text-primary">Name</Label>
+                  <Input
                     id="name"
                     placeholder="Max Robinson"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     disabled={isLoading}
-                    />
+                    className="transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary bg-background/50"
+                  />
                 </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>                <Input
+                <div className="grid gap-2 group">
+                  <Label htmlFor="email" className="text-sm font-medium transition-colors group-focus-within:text-primary">Email</Label>
+                  <Input
                     id="email"
                     type="email"
                     placeholder="m@example.com"
@@ -117,32 +131,52 @@ export default function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isLoading}
-                    />
+                    className="transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary bg-background/50"
+                  />
                 </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
+                <div className="grid gap-2 group">
+                  <Label htmlFor="password" className="text-sm font-medium transition-colors group-focus-within:text-primary">Password</Label>
+                  <Input
                     id="password"
                     type="password"
                     required
                     minLength={6}
+                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
-                    />
+                    className="transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary bg-background/50"
+                  />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
+                <Button 
+                   type="submit" 
+                   className="w-full mt-2 transition-all duration-300 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group" 
+                   disabled={isLoading}
+                >
+                  <span className="relative z-10 font-semibold">{isLoading ? 'Creating Account...' : 'Create Account'}</span>
+                  {/* Button shine effect */}
+                  <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] skew-x-[-30deg] group-hover:animate-shine transition-all"></div>
                 </Button>
-                </div>
+              </div>
             </form>
-            <div className="mt-4 text-center text-sm">
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4 pb-8">
+             <div className="relative w-full">
+                <div className="absolute inset-0 flex items-center">
+                   <span className="w-full border-t border-muted"></span>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                   <span className="bg-background/60 px-2 text-muted-foreground backdrop-blur-sm">Or</span>
+                </div>
+             </div>
+             <div className="text-center text-sm text-muted-foreground w-full">
                 Already have an account?{' '}
-                <Link href="/login" className="underline">
-                Login
+                <Link href="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors hover:underline underline-offset-4">
+                  Login
                 </Link>
-            </div>
-        </div>
+             </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
