@@ -56,7 +56,6 @@ export function LightweightChart({ data, isPositive, className }: LightweightCha
       },
       handleScroll: false,
       handleScale: false,
-      attributionLogo: false,
     });
 
     const series = chart.addSeries(AreaSeries, {
