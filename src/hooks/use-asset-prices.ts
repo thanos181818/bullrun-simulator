@@ -3,7 +3,7 @@
 import useSWR from 'swr';
 import { useAssetPriceStore } from '@/stores/asset-price-store';
 import { useMemo } from 'react';
-import type { Asset } from '@/lib/types';
+import type { Asset, PriceData } from '@/lib/types';
 
 const fetcher = (url: string) => fetch(url).then(r => {
   if (!r.ok) throw new Error(`Market data fetch failed: ${r.status}`);
@@ -57,8 +57,13 @@ export function useAssetPrices() {
     });
   }, [dbAssets, prices]);
 
+  const getAsset = (sym: string) => {
+    return mergedAssets.find(a => a.symbol === sym.toUpperCase());
+  };
+
   return {
     assets: mergedAssets,
+    getAsset,
     prices,
     isLoading: isDbLoading || (isPricesLoading && mergedAssets.length === 0),
     isError: !!error,
@@ -68,8 +73,8 @@ export function useAssetPrices() {
 }
 
 export function useAssetHistory(symbol: string, range: string = '1M') {
-  const { data, error, isLoading, mutate } = useSWR(
-    symbol ? `/api/market/history/${symbol}?range=${range}` : null,
+  const { data, error, isLoading, mutate } = useSWR<PriceData[]>(
+    symbol ? `/api/price-history?symbol=${symbol}&range=${range}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -78,7 +83,7 @@ export function useAssetHistory(symbol: string, range: string = '1M') {
   );
 
   return {
-    data: data?.data || [],
+    data: data || [],
     isLoading,
     isError: !!error,
     mutate,

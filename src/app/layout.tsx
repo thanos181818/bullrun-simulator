@@ -7,7 +7,7 @@ import * as React from 'react';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Oloo — Paper Trading Simulator',
+  title: 'BullRun Trading Simulator',
   description: 'Learn to trade with real market data and zero risk.',
 };
 

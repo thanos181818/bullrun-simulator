@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth';
 import connectToDatabase from '@/lib/mongodb';
 import { UserModel, PortfolioModel, TradeModel, AssetModel } from '@/lib/models/schemas';
 import { authOptions } from '@/lib/auth.config';
-import { ClientSession } from 'mongodb';
 import mongoose from 'mongoose';
 
 // POST /api/users/[id]/execute-trade - Execute a buy or sell trade
@@ -34,7 +33,7 @@ export async function POST(
     const totalAmount = quantity * price;
     
     // Use MongoDB transaction for atomicity
-    const mongoSession: ClientSession = await mongoose.startSession();
+    const mongoSession = await mongoose.startSession();
     
     try {
       await mongoSession.withTransaction(async () => {
@@ -209,7 +208,6 @@ export async function POST(
             totalReturn,
             totalReturnPercent,
             maxPortfolioValue,
-            totalReturnPercent,
             balanceHistory,
           },
           { session: mongoSession }

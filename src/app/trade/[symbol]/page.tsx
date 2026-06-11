@@ -70,11 +70,22 @@ export default function TradePage() {
 
   const livePrice = asset?.price || 0;
   
-  // Prepare chart data: Use the history from the store (which includes live-simulated points)
+  // Prepare chart data: Merge historical data with the latest live tick
   const chartData = useMemo(() => {
     if (!priceHistory || priceHistory.length === 0) {
       return [{ time: Date.now(), price: livePrice }];
     }
+
+    // Append the current live price as the most recent data point
+    // This ensures the graph "moves" as livePrice updates from SWR
+    const latestHistoryTime = priceHistory[priceHistory.length - 1].time;
+    const now = Date.now();
+
+    // Only append if the live tick is newer than our last history point
+    if (now > latestHistoryTime) {
+      return [...priceHistory, { time: now, price: livePrice }];
+    }
+
     return priceHistory;
   }, [priceHistory, livePrice]);
   
@@ -181,6 +192,7 @@ export default function TradePage() {
   }
 
   const handleTrade = async () => {
+    if (!asset) return;
     if (!session?.user?.id) {
       toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to trade.' });
       return;
@@ -260,7 +272,7 @@ export default function TradePage() {
         router.push('/portfolio');
       }, 1000);
 
-    } catch (e) {
+    } catch (e: any) {
       console.error("Trade failed:", e);
       toast({
         variant: 'destructive',
@@ -326,10 +338,10 @@ export default function TradePage() {
       </div>
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-semibold">
-          {asset.name} ({asset.symbol})
+          {asset!.name} ({asset!.symbol})
         </h1>
-        <Badge variant={asset.type === 'crypto' ? 'secondary' : 'outline'}>
-          {asset.type}
+        <Badge variant={asset!.type === 'crypto' ? 'secondary' : 'outline'}>
+          {asset!.type}
         </Badge>
         <Button variant="ghost" size="icon" onClick={() => toggleWatchlist(symbol)} title={isWatched ? 'Remove from watchlist' : 'Add to watchlist'}>
           <Star className={cn("h-5 w-5", isWatched ? "fill-yellow-400 text-yellow-500" : "text-muted-foreground")} />
@@ -375,7 +387,7 @@ export default function TradePage() {
           <Card>
             <CardHeader>
               <CardTitle>Trade</CardTitle>
-              <CardDescription>Execute buy or sell orders for {asset.symbol}.</CardDescription>
+              <CardDescription>Execute buy or sell orders for {asset!.symbol}.</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -385,14 +397,14 @@ export default function TradePage() {
                 </TabsList>
                 <TabsContent value="buy" className="mt-4 space-y-4">
                    <div className="space-y-2">
-                    <Label htmlFor="quantity-buy">Quantity {asset.type === 'crypto' && <span className="text-xs text-muted-foreground">(fractional allowed)</span>}</Label>
+                    <Label htmlFor="quantity-buy">Quantity {asset!.type === 'crypto' && <span className="text-xs text-muted-foreground">(fractional allowed)</span>}</Label>
                     <Input 
                       id="quantity-buy" 
                       type="number" 
-                      placeholder={asset.type === 'crypto' ? '0.0000' : '0'} 
+                      placeholder={asset!.type === 'crypto' ? '0.0000' : '0'} 
                       value={quantity} 
                       onChange={e => setQuantity(e.target.value)}
-                      step={asset.type === 'crypto' ? '0.0001' : '1'}
+                      step={asset!.type === 'crypto' ? '0.0001' : '1'}
                       min="0"
                     />
                   </div>

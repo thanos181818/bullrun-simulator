@@ -28,8 +28,9 @@ export function WatchlistComparison({ watchedAssets, onClose }: WatchlistCompari
       for (const asset of watchedAssets) {
         try {
           const response = await fetch(`/api/price-history?symbol=${asset.symbol}&range=1D`);
+          if (!response.ok) throw new Error(`HTTP error ${response.status}`);
           const priceHistory = await response.json();
-          data[asset.symbol] = priceHistory;
+          data[asset.symbol] = Array.isArray(priceHistory) ? priceHistory : [];
         } catch (error) {
           console.error(`Failed to fetch price history for ${asset.symbol}:`, error);
           data[asset.symbol] = [];

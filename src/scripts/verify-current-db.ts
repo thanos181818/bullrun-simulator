@@ -21,6 +21,7 @@ async function verify() {
 
     // Check AAPL for ANY data from March 20-21
     const march20Start = new Date('2026-03-20T00:00:00Z');
+    const march21Start = new Date('2026-03-21T00:00:00Z');
     const march22Start = new Date('2026-03-22T00:00:00Z');
 
     const aaplData = await collection
@@ -59,7 +60,7 @@ async function verify() {
       console.log('✅ NONE FOUND - Database is clean!');
     } else {
       lowPrices.forEach((doc: any) => {
-        console.log(`  $${doc.price.toFixed(2)} at ${doc.timestamp.toISOString()}`);
+        console.log(`  $${doc.price.toFixed(2)} at ${new Date(doc.timestamp).toISOString()}`);
       });
     }
 

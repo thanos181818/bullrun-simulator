@@ -44,10 +44,11 @@ const YAHOO_SYMBOL_MAP: Record<string, string> = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { symbol: string } }
+  { params }: { params: Promise<{ symbol: string }> }
 ) {
   try {
-    const symbol = params.symbol.toUpperCase();
+    const { symbol: rawSymbol } = await params;
+    const symbol = rawSymbol.toUpperCase();
     const yahooSymbol = YAHOO_SYMBOL_MAP[symbol];
 
     if (!yahooSymbol) {

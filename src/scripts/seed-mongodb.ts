@@ -205,10 +205,7 @@ async function seedDatabase() {
         } catch (error) {
           console.warn(`  ⚠️ Failed to fetch real data, falling back to generated: ${error}`);
           const generated = generatePriceHistory(asset.symbol, asset.initialPrice, (asset as any).ipoDate);
-          assetHistory = generated.map(g => ({
-            symbol: asset.symbol,
-            ...g,
-          }));
+          assetHistory = generated;
           generatedDataCount += assetHistory.length;
         }
         
@@ -218,10 +215,7 @@ async function seedDatabase() {
       } else {
         // Generate data for stocks and any cryptos without real data
         const generated = generatePriceHistory(asset.symbol, asset.initialPrice, (asset as any).ipoDate);
-        assetHistory = generated.map(g => ({
-          symbol: asset.symbol,
-          ...g,
-        }));
+        assetHistory = generated;
         generatedDataCount += assetHistory.length;
         
         if (asset.type === 'stock') {

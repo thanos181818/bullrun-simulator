@@ -62,7 +62,7 @@ export async function fetchHistoricalData(
   symbol: string,
   fromDate: number,
   toDate: number,
-  interval: '1m' | '5m' | '15m' | '30m' | '1h' | '1d' | '1wk' | '1mo' = '1d'
+  interval: '1m' | '2m' | '5m' | '15m' | '30m' | '1h' | '1d' | '1wk' | '1mo' = '1d'
 ): Promise<YahooFinanceHistoryPoint[]> {
   const yahooSymbol = YAHOO_SYMBOL_MAP[symbol];
   

@@ -65,7 +65,7 @@ async function fetchYahooHistory(symbol: string, range: Range): Promise<Candle[]
   const period2 = new Date();
 
   try {
-    const result = await yahooFinance.chart(symbol, {
+    const result: any = await yahooFinance.chart(symbol, {
       period1,
       period2,
       interval: range === '1M' ? '1d' : range === '3M' ? '1d' : '1wk',
@@ -105,8 +105,9 @@ async function fetchCoinGeckoHistory(symbol: string, range: Range): Promise<Cand
   }));
 }
 
-export async function GET(req: NextRequest, { params }: { params: { symbol: string } }) {
-  const symbol = params.symbol.toUpperCase();
+export async function GET(req: NextRequest, { params }: { params: Promise<{ symbol: string }> }) {
+  const { symbol: rawSymbol } = await params;
+  const symbol = rawSymbol.toUpperCase();
   const range = (req.nextUrl.searchParams.get('range') ?? '1M') as Range;
   const cacheKey = CACHE_KEYS.historyPrefix(symbol, range);
 

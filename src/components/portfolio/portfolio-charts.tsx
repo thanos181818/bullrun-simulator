@@ -50,11 +50,11 @@ export function PortfolioCharts() {
           fill: CHART_COLORS[i % CHART_COLORS.length],
         };
       })
-      .filter(d => d.value > 0);
+      .filter((d: any) => d.value > 0);
     
     // Build config dynamically for proper labels
     const config: Record<string, { label: string }> = {};
-    data.forEach((item) => {
+    data.forEach((item: any) => {
       config[item.name] = {
         label: item.assetName,
       };
@@ -64,7 +64,7 @@ export function PortfolioCharts() {
   }, [portfolio, assets]);
 
   const totalValue = useMemo(() => {
-    return allocationData.reduce((sum, item) => sum + item.value, 0);
+    return allocationData.reduce((sum: number, item: any) => sum + item.value, 0);
   }, [allocationData]);
 
   return (
@@ -110,7 +110,7 @@ export function PortfolioCharts() {
                   paddingAngle={2}
                   strokeWidth={2}
                 >
-                  {allocationData.map((entry, index) => (
+                  {allocationData.map((entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} className="stroke-background" />
                   ))}
                   <Label

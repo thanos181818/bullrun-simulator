@@ -81,7 +81,7 @@ export function HoldingsTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {enrichedHoldings.map((holding, index) => (
+        {enrichedHoldings.map((holding: any, index: number) => (
           <TableRow 
             key={holding.assetSymbol}
             className="border-border/30 transition-all duration-200 hover:bg-accent/20 group cursor-pointer"

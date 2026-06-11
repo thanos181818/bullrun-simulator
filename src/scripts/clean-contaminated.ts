@@ -26,7 +26,7 @@ async function clean() {
     console.log(`Found ${allMarch20.length} records on March 20-21`);
 
     // Mark for deletion: any record that's not on a clean hour boundary
-    const toDelete = [];
+    const toDelete: any[] = [];
     allMarch20.forEach((doc: any) => {
       const ts = doc.timestamp;
       const d = new Date(ts);

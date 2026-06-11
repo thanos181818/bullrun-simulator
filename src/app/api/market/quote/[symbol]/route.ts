@@ -7,9 +7,10 @@ const FINNHUB_KEY = process.env.FINNHUB_API_KEY!;
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { symbol: string } }
+  { params }: { params: Promise<{ symbol: string }> }
 ) {
-  const symbol = params.symbol.toUpperCase();
+  const { symbol: rawSymbol } = await params;
+  const symbol = rawSymbol.toUpperCase();
   const cacheKey = CACHE_KEYS.quotePrefix(symbol);
 
   const cached = await redis.get(cacheKey);

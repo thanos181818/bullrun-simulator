@@ -2,7 +2,7 @@ import mongoose, { Schema, Model, Document } from 'mongoose';
 import type { User, Asset, Trade, Portfolio, Holding, Badge, Watchlist } from '../types';
 
 // User Schema
-export interface UserDocument extends Omit<User, 'id'>, Document {
+export interface UserDocument extends Omit<User, 'id'> {
   _id: string;
 }
 
@@ -43,7 +43,7 @@ const UserSchema = new Schema<UserDocument>({
 export const UserModel: Model<UserDocument> = mongoose.models.User || mongoose.model<UserDocument>('User', UserSchema);
 
 // Asset Schema
-export interface AssetDocument extends Omit<Asset, 'id'>, Document {
+export interface AssetDocument extends Omit<Asset, 'id'> {
   _id: string;
 }
 
@@ -62,7 +62,7 @@ const AssetSchema = new Schema<AssetDocument>({
 export const AssetModel: Model<AssetDocument> = mongoose.models.Asset || mongoose.model<AssetDocument>('Asset', AssetSchema);
 
 // Trade Schema
-export interface TradeDocument extends Omit<Trade, 'id'>, Document {
+export interface TradeDocument extends Omit<Trade, 'id'> {
   _id: string;
 }
 
@@ -83,7 +83,7 @@ TradeSchema.index({ userId: 1, timestamp: -1 });
 export const TradeModel: Model<TradeDocument> = mongoose.models.Trade || mongoose.model<TradeDocument>('Trade', TradeSchema);
 
 // Portfolio Schema
-export interface PortfolioDocument extends Omit<Portfolio, 'id'>, Document {
+export interface PortfolioDocument extends Omit<Portfolio, 'id'> {
   _id: string;
 }
 
@@ -105,7 +105,7 @@ PortfolioSchema.index({ userId: 1, mode: 1 }, { unique: true });
 export const PortfolioModel: Model<PortfolioDocument> = mongoose.models.Portfolio || mongoose.model<PortfolioDocument>('Portfolio', PortfolioSchema);
 
 // Badge Schema
-export interface BadgeDocument extends Omit<Badge, 'id'>, Document {
+export interface BadgeDocument extends Badge {
   _id: string;
 }
 
@@ -121,7 +121,7 @@ const BadgeSchema = new Schema<BadgeDocument>({
 export const BadgeModel: Model<BadgeDocument> = mongoose.models.Badge || mongoose.model<BadgeDocument>('Badge', BadgeSchema);
 
 // Watchlist Schema (if you want separate collection)
-export interface WatchlistDocument extends Omit<Watchlist, 'id'>, Document {
+export interface WatchlistDocument extends Omit<Watchlist, 'id'> {
   _id: string;
 }
 
@@ -133,7 +133,7 @@ const WatchlistSchema = new Schema<WatchlistDocument>({
 export const WatchlistModel: Model<WatchlistDocument> = mongoose.models.Watchlist || mongoose.model<WatchlistDocument>('Watchlist', WatchlistSchema);
 
 // PriceHistory Schema
-export interface PriceHistoryDocument extends Document {
+export interface PriceHistoryDocument {
   _id: string;
   symbol: string;
   timestamp: number;
@@ -152,7 +152,8 @@ PriceHistorySchema.index({ symbol: 1, timestamp: 1 });
 export const PriceHistoryModel: Model<PriceHistoryDocument> = mongoose.models.PriceHistory || mongoose.model<PriceHistoryDocument>('PriceHistory', PriceHistorySchema);
 
 // PortfolioSnapshot Schema (NEW for Decision D)
-export interface PortfolioSnapshotDocument extends Document {
+export interface PortfolioSnapshotDocument {
+  _id: string;
   userId: string;
   timestamp: Date;
   totalValue: number;

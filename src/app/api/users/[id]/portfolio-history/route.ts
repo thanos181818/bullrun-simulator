@@ -4,9 +4,9 @@ import { PortfolioSnapshotModel } from '@/lib/models/schemas';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const userId = params.id;
+  const { id: userId } = await params;
   const range = req.nextUrl.searchParams.get('range') || '1W';
 
   try {

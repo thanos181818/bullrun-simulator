@@ -98,7 +98,7 @@ export type Asset = {
 
 export type LeaderboardEntry = {
   rank: number;
-  user: Pick<User, 'id' | 'name' | 'avatarUrl'>;
+  user: Pick<User, 'id' | 'fullName' | 'avatar'>;
   portfolioValue: number;
   percentGain: number;
 };

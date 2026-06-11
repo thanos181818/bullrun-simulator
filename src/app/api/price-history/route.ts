@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     let startTime: number;
     let endTime: number = now;
     let maxDataPoints: number;
-    let yahooInterval: '1m' | '5m' | '30m' | '1h' | '1d' | '1wk' = '1d';
+    let yahooInterval: '1m' | '2m' | '5m' | '15m' | '30m' | '1h' | '1d' | '1wk' = '1d';
 
     // Calculate time range and max data points based on range parameter
     switch (range) {
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     }
 
     // First, try to fetch from MongoDB
-    let priceHistory = await PriceHistoryModel
+    let priceHistory: any[] = await PriceHistoryModel
       .find({
         symbol,
         timestamp: { $gte: startTime, $lte: endTime }

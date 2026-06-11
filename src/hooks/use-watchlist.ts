@@ -46,7 +46,7 @@ export function useWatchlist() {
         title: isWatched ? 'Removed from Watchlist' : 'Added to Watchlist',
         description: `${symbol} has been ${isWatched ? 'removed from' : 'added to'} your watchlist.`,
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error('Watchlist update failed:', e);
       toast({
         variant: 'destructive',

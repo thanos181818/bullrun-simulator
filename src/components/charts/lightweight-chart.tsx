@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { createChart, ColorType, IChartApi, ISeriesApi, LineStyle, CrosshairMode } from 'lightweight-charts';
+import { createChart, ColorType, IChartApi, ISeriesApi, LineStyle, CrosshairMode, AreaSeries } from 'lightweight-charts';
 import { useTheme } from 'next-themes';
 
 interface LightweightChartProps {
@@ -58,7 +58,7 @@ export function LightweightChart({ data, isPositive, className }: LightweightCha
       handleScale: false,
     });
 
-    const series = chart.addAreaSeries({
+    const series = chart.addSeries(AreaSeries, {
       lineColor: chartColor,
       topColor: `${chartColor}44`, // 44 is hex for ~25% opacity
       bottomColor: `${chartColor}00`,

@@ -14,6 +14,10 @@ async function nukeData() {
     await mongoose.connect(MONGODB_URI);
     console.log('Connected to MongoDB');
 
+    if (!mongoose.connection.db) {
+      throw new Error('Connection database is undefined');
+    }
+
     // Delete all price history - this is the source of the "jittery" mock data
     const collections = await mongoose.connection.db.listCollections().toArray();
     const historyExists = collections.some(c => c.name === 'pricehistories');

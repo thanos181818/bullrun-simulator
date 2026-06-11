@@ -83,25 +83,21 @@ async function getMarketData(): Promise<Asset[]> {
     return assets.map(asset => {
       const rt = realTimePrices[asset.symbol];
       const currentPrice = rt ? rt.price : asset.price;
-      const change = rt ? rt.change : asset.priceChange24h;
-      const changePercent = rt ? rt.percent : (asset.priceChange24h / asset.price) * 100;
+      const change = rt ? rt.change : asset.change;
+      const changePercent = rt ? rt.percent : asset.changePercent;
 
       return {
-        id: asset.id,
         name: asset.name,
         symbol: asset.symbol,
         type: asset.type,
         price: currentPrice,
-        priceChange24h: change,
-        volume24h: asset.volume24h,
         marketCap: asset.marketCap,
-        description: asset.description,
-        image: asset.image,
         change: change,
         changePercent: changePercent,
-        initialPrice: asset.price,
+        initialPrice: asset.initialPrice || asset.price,
+        coingeckoId: asset.coingeckoId,
       };
-    }) as Asset[];
+    }) as unknown as Asset[];
   } catch (error) {
     console.error("Error fetching market data for AI:", error);
     return [];
