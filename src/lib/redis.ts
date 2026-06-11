@@ -10,6 +10,7 @@ export const redis = new Redis({
 export const CACHE_KEYS = {
   stockPrices: 'prices:stocks',
   cryptoPrices: 'prices:crypto',
+  refreshLock: 'prices:refresh_lock',   // throttle background refresh
   quotePrefix: (symbol: string) => `quote:${symbol}`,
   historyPrefix: (symbol: string, range: string) => `history:${symbol}:${range}`,
   newsPrefix: (symbol: string) => `news:${symbol}`,

@@ -80,7 +80,7 @@ export function CollapsibleSidebar() {
           <div className="flex h-10 w-10 items-center justify-center hover:bg-accent/50 rounded-lg transition-colors group relative cursor-pointer">
             <LanguageSelector />
             <span className="absolute left-16 px-2 py-1 bg-foreground text-background rounded text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-              Language
+              Rule Book
             </span>
           </div>
           <div className="flex h-10 w-10 items-center justify-center hover:bg-accent/50 rounded-lg transition-colors group relative cursor-pointer">

@@ -79,9 +79,15 @@ export function ViewBalanceDialog({ userEmail }: { userEmail: string }) {
         </DialogHeader>
 
         {isLoading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-96 w-full" />
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+            <p className="text-muted-foreground">Loading balance history...</p>
+            <div className="space-y-3 w-full pt-4">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
           </div>
         ) : !balanceData ? (
           <p className="text-center text-muted-foreground">Failed to load balance history</p>

@@ -168,10 +168,10 @@ export function BadgeList({ userBadges }: BadgeListProps) {
                         </span>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs p-3">
+                    <TooltipContent side="top" sideOffset={6} className="max-w-xs p-3 bg-popover border border-border shadow-xl z-[100]">
                       <div className="space-y-1">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="font-bold text-base">{badge.title}</p>
+                          <p className="font-bold text-base text-foreground">{badge.title}</p>
                           <span className={cn(
                             "text-[10px] px-1.5 py-0.5 rounded-full border font-bold uppercase",
                             rarityBg[badge.rarity] || "bg-primary/10",

@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 export const metadata: Metadata = {
   title: 'BullRun Trading Simulator',
   description: 'Learn to trade with real market data and zero risk.',
+  icons: {
+    icon: '././logo.jpg',
+  },
 };
 
 export default function RootLayout({

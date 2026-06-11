@@ -94,7 +94,7 @@ export function WatchlistComparison({ watchedAssets, onClose }: WatchlistCompari
                 </p>
               </div>
 
-              <div className="h-48 w-full">
+              <div className="h-48 w-full overflow-hidden relative rounded-md">
                 {chartData[asset.symbol] && chartData[asset.symbol].length > 0 ? (
                   <StockChart
                     data={chartData[asset.symbol]}

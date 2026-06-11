@@ -27,10 +27,10 @@ export default function PortfolioPage() {
             value="simulated" 
             className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg font-semibold rounded-lg transition-all duration-200"
           >
-            Simulated Mode
+            Real Mode
           </TabsTrigger>
           <TabsTrigger value="real" disabled className="opacity-40 cursor-not-allowed">
-            Real Mode (Soon)
+           Simulated Mode (Soon)
           </TabsTrigger>
         </TabsList>
         <TabsContent value="simulated" className="mt-8">

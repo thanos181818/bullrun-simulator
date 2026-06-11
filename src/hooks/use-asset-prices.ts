@@ -65,7 +65,7 @@ export function useAssetPrices() {
     assets: mergedAssets,
     getAsset,
     prices,
-    isLoading: isDbLoading || (isPricesLoading && mergedAssets.length === 0),
+    isLoading: isDbLoading || isPricesLoading,
     isError: !!error,
     isRefreshing: isValidating && !isPricesLoading,
     lastUpdated,
