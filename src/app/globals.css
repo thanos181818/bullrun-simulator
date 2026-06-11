@@ -135,6 +135,25 @@
   }
 }
 
+/* Global CSS to hide TradingView watermark */
+.lightweight-chart-container a[href*="tradingview"],
+.lightweight-chart-container a[href*="lightweight-charts"],
+.tv-watermark,
+.tv-text,
+.tv-lightweight-charts-watermark,
+.tv-watermark-wrapper {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
 @layer utilities {
   /* Glassmorphism card style */
   .glass-card {

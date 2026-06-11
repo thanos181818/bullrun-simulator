@@ -56,6 +56,10 @@ export function LightweightChart({ data, isPositive, className }: LightweightCha
       },
       handleScroll: false,
       handleScale: false,
+      watermark: {
+        visible: false,
+      },
+      attributionLogo: false,
     });
 
     const series = chart.addSeries(AreaSeries, {
@@ -95,5 +99,5 @@ export function LightweightChart({ data, isPositive, className }: LightweightCha
     };
   }, [data, isPositive, theme]);
 
-  return <div ref={chartContainerRef} className={className} style={{ width: '100%', height: '100%' }} />;
+  return <div ref={chartContainerRef} className={`${className} lightweight-chart-container`} style={{ width: '100%', height: '100%' }} />;
 }
